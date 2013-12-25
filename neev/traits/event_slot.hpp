@@ -9,6 +9,8 @@
 #ifndef NEEV_EVENT_SLOT_HPP
 #define NEEV_EVENT_SLOT_HPP
 
+#include <cstddef>
+
 namespace neev{
 /** Empty trait, it must be specialized to link an event with a particular
 * function slot signature. Must expose a function type named "type".

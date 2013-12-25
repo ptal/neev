@@ -9,7 +9,7 @@
 #ifndef NEEV_CLIENT_HPP
 #define NEEV_CLIENT_HPP
 
-#include <neev/client_connection_events.hpp>
+#include <neev/client/client_connection_events.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/enable_shared_from_this.hpp>
