@@ -6,10 +6,12 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef SERVER_MULTI_THREADED_SERVER_HPP
-#define SERVER_MULTI_THREADED_SERVER_HPP
+#ifndef NEEV_MULTI_THREADED_SERVER_HPP
+#define NEEV_MULTI_THREADED_SERVER_HPP
 
-#include "umcd/server/basic_server.hpp"
+#include <neev/basic_server.hpp>
+
+namespace neev{
 
 class server_mt : public basic_server
 {
@@ -27,4 +29,6 @@ private:
   std::size_t thread_pool_size_;
 };
 
-#endif // SERVER_MULTI_THREADED_SERVER_HPP
+} // namespace neev
+
+#endif // NEEV_MULTI_THREADED_SERVER_HPP

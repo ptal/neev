@@ -9,8 +9,10 @@
 /** @file Represents a transfer of data over the network.
 */
 
-#ifndef UMCD_EVENTS_SUBSCRIBER_VIEW_HPP
-#define UMCD_EVENTS_SUBSCRIBER_VIEW_HPP
+#ifndef NEEV_EVENTS_SUBSCRIBER_VIEW_HPP
+#define NEEV_EVENTS_SUBSCRIBER_VIEW_HPP
+
+namespace neev{
 
 /** This class propose a view of an event class. It only proposes the 
 * on_event method.
@@ -32,4 +34,6 @@ private:
   Events &events_;
 };
 
-#endif // UMCD_EVENTS_SUBSCRIBER_VIEW_HPP
+} // namespace neev
+
+#endif // NEEV_EVENTS_SUBSCRIBER_VIEW_HPP

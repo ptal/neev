@@ -81,8 +81,8 @@ private:
  * \endcode
 */
 
-#ifndef UMCD_EVENTS_HPP
-#define UMCD_EVENTS_HPP
+#ifndef NEEV_EVENTS_HPP
+#define NEEV_EVENTS_HPP
 
 /** The maximum arguments number we can pass to the event slot.
 * Increase this if the slots take more than EVENT_LIMIT_ARG arguments.
@@ -91,7 +91,9 @@ private:
   #define EVENT_LIMIT_ARG 5
 #endif
 
-#include "umcd/server/detail/events_type_selector.hpp"
+#include <neev/detail/events_type_selector.hpp>
+
+namespace neev{
 
 /** Provides slot registration (with on_event) and event triggering (with signal_event)
 * for each events in the EventSequence.
@@ -104,4 +106,6 @@ class events
 {
 };
 
-#endif // UMCD_EVENTS_HPP
+} // namespace neev
+
+#endif // NEEV_EVENTS_HPP

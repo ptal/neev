@@ -6,12 +6,14 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_TRANSFER_EVENTS_HPP
-#define UMCD_TRANSFER_EVENTS_HPP
+#ifndef NEEV_TRANSFER_EVENTS_HPP
+#define NEEV_TRANSFER_EVENTS_HPP
 
-#include "umcd/server/events.hpp"
-#include "umcd/server/events_subscriber_view.hpp"
+#include <neev/events.hpp>
+#include <neev/events_subscriber_view.hpp>
 #include <boost/system/error_code.hpp>
+
+namespace neev{
 
 struct transfer_complete{};
 struct transfer_error{};
@@ -61,4 +63,6 @@ struct transfer_events
       , chunk_complete> >
 {};
 
-#endif // UMCD_TRANSFER_EVENTS_HPP
+} // namespace neev
+
+#endif // NEEV_TRANSFER_EVENTS_HPP

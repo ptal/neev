@@ -9,10 +9,12 @@
 /** @file Asynchronously receive data from the network.
 */
 
-#ifndef UMCD_NETWORK_RECEIVER_HPP
-#define UMCD_NETWORK_RECEIVER_HPP
+#ifndef NEEV_NETWORK_RECEIVER_HPP
+#define NEEV_NETWORK_RECEIVER_HPP
 
-#include "umcd/server/network_transfer.hpp"
+#include <neev/network_transfer.hpp>
+
+namespace neev{
 
 /** Wrap calls the boost::asio::async_read method and bind argument to it.
 *
@@ -62,4 +64,6 @@ public:
   }
 };
 
-#endif // UMCD_NETWORK_RECEIVER_HPP
+} // namespace neev
+
+#endif // NEEV_NETWORK_RECEIVER_HPP

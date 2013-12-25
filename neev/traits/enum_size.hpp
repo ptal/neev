@@ -6,9 +6,10 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_ENUM_SIZE_HPP
-#define UMCD_ENUM_SIZE_HPP
+#ifndef NEEV_ENUM_SIZE_HPP
+#define NEEV_ENUM_SIZE_HPP
 
+namespace neev{
 /** Empty trait, it must be specialized and must expose a static const 
 * integer member value representing the size of the enumeration EnumType.
 */
@@ -16,4 +17,6 @@ template <class EnumType>
 struct enum_size
 {};
 
-#endif // UMCD_ENUM_SIZE_HPP
+} // namespace neev
+
+#endif // NEEV_ENUM_SIZE_HPP

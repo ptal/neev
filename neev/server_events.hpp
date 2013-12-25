@@ -6,15 +6,17 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_SERVER_EVENTS_HPP
-#define UMCD_SERVER_EVENTS_HPP
+#ifndef NEEV_SERVER_EVENTS_HPP
+#define NEEV_SERVER_EVENTS_HPP
 
-#include "umcd/server/events.hpp"
+#include <neev/events.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <exception>
+
+namespace neev{
 
 struct endpoint_failure{};
 struct start_success{};
@@ -84,4 +86,6 @@ struct server_events :
         , on_new_client> >
 {};
 
-#endif // UMCD_SERVER_EVENTS_HPP
+} // namespace neev
+
+#endif // NEEV_SERVER_EVENTS_HPP

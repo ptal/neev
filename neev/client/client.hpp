@@ -6,16 +6,15 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_CLIENT_HPP
-#define UMCD_CLIENT_HPP
+#ifndef NEEV_CLIENT_HPP
+#define NEEV_CLIENT_HPP
 
-#include "umcd/boost/asio/asio.hpp"
-#include "umcd/client/client_connection_events.hpp"
+#include <neev/client_connection_events.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
-namespace umcd{
+namespace neev{
 
 class client : 
     public boost::enable_shared_from_this<client>
@@ -134,6 +133,6 @@ private:
   client_connection_events events_;
 };
 
-} // namespace umcd
+} // namespace neev
 
 #endif

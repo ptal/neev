@@ -6,8 +6,10 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_EVENTS_SET_IMPL_HPP
-#define UMCD_EVENTS_SET_IMPL_HPP
+#ifndef NEEV_EVENTS_SET_IMPL_HPP
+#define NEEV_EVENTS_SET_IMPL_HPP
+
+#include <neev/traits/event_slot.hpp>
 
 #include <boost/mpl/set.hpp>
 #include <boost/mpl/front.hpp>
@@ -23,9 +25,7 @@
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 
-#include "umcd/server/traits/event_slot.hpp"
-#include "umcd/boost/static_assert.hpp"
-
+namespace neev{
 namespace detail{
 namespace mpl = boost::mpl;
 
@@ -171,6 +171,6 @@ class events_set_impl_tag<EventSequence, mpl::aux::set_tag>
 : public events_set_impl<EventSequence>
 {};
 
-} // namespace detail
+}} // namespace neev::detail
 
-#endif // UMCD_EVENTS_SET_IMPL_HPP
+#endif // NEEV_EVENTS_SET_IMPL_HPP

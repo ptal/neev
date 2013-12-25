@@ -6,11 +6,13 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_BUFFER_PROVIDER_HPP
-#define UMCD_BUFFER_PROVIDER_HPP
+#ifndef NEEV_BUFFER_PROVIDER_HPP
+#define NEEV_BUFFER_PROVIDER_HPP
 
-#include "umcd/server/transfer_events.hpp"
+#include <neev/transfer_events.hpp>
 #include <boost/enable_shared_from_this.hpp>
+
+namespace neev{
 
 /** Provide an access to buffer and the *known* size to transfer.
 * Meaning that this size can rise.
@@ -46,4 +48,6 @@ protected:
   std::size_t bytes_to_transfer_;
 };
 
-#endif // UMCD_BUFFER_PROVIDER_HPP
+} // namespace neev
+
+#endif // NEEV_BUFFER_PROVIDER_HPP

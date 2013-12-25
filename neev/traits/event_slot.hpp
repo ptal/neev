@@ -6,9 +6,10 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_EVENT_SLOT_HPP
-#define UMCD_EVENT_SLOT_HPP
+#ifndef NEEV_EVENT_SLOT_HPP
+#define NEEV_EVENT_SLOT_HPP
 
+namespace neev{
 /** Empty trait, it must be specialized to link an event with a particular
 * function slot signature. Must expose a function type named "type".
 */
@@ -24,4 +25,6 @@ template <class EnumType, std::size_t Event>
 struct event_slot_c
 {};
 
-#endif // UMCD_EVENT_SLOT_HPP
+} // namespace neev
+
+#endif // NEEV_EVENT_SLOT_HPP

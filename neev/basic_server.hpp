@@ -6,14 +6,16 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_SERVER_BASIC_SERVER_HPP
-#define UMCD_SERVER_BASIC_SERVER_HPP
+#ifndef NEEV_SERVER_BASIC_SERVER_HPP
+#define NEEV_SERVER_BASIC_SERVER_HPP
 
-#include "umcd/server/server_events.hpp"
+#include <neev/server_events.hpp>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
 #include <string>
+
+namespace neev{
 
 class basic_server : boost::noncopyable
 {
@@ -62,4 +64,6 @@ private:
   server_events events_;
 };
 
-#endif // UMCD_SERVER_BASIC_SERVER_HPP
+} // namespace neev
+
+#endif // NEEV_SERVER_BASIC_SERVER_HPP

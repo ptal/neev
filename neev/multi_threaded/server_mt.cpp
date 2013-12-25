@@ -6,11 +6,12 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#include "umcd/server/multi_threaded/server_mt.hpp"
-#include "umcd/boost/thread/workaround.hpp"
+#include <neev/multi_threaded/server_mt.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/make_shared.hpp>
 #include <stdexcept>
+
+namespace neev{
 
 server_mt::server_mt(std::size_t threads)
 : thread_pool_size_(threads)
@@ -49,3 +50,5 @@ std::size_t server_mt::thread_pool_size() const
 {
   return thread_pool_size_;
 }
+
+} // namespace neev

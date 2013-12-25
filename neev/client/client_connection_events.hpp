@@ -6,24 +6,22 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_CLIENT_CONNECTION_EVENTS_HPP
-#define UMCD_CLIENT_CONNECTION_EVENTS_HPP
+#ifndef NEEV_CLIENT_CONNECTION_EVENTS_HPP
+#define NEEV_CLIENT_CONNECTION_EVENTS_HPP
 
-#include "umcd/server/events.hpp"
+#include <neev/events.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <string>
 
-namespace umcd{
+namespace neev{
 
 struct try_connecting_with_ip{};
 struct connection_success{};
 struct connection_failure{};
 
-} // umcd
-
 template <>
-struct event_slot<umcd::try_connecting_with_ip>
+struct event_slot<try_connecting_with_ip>
 {
   /** Notify that the client is trying to connect the server with a specific ip.
   */
@@ -31,7 +29,7 @@ struct event_slot<umcd::try_connecting_with_ip>
 };
 
 template <>
-struct event_slot<umcd::connection_success>
+struct event_slot<connection_success>
 {
   /** Notify that the client is connected to the server with the socket passed in the arguments.
   */
@@ -39,14 +37,12 @@ struct event_slot<umcd::connection_success>
 };
 
 template <>
-struct event_slot<umcd::connection_failure>
+struct event_slot<connection_failure>
 {
   /** Notify that an error occurred and thus the client cannot connect to this server.
   */
   typedef void type(const boost::system::error_code&);
 };
-
-namespace umcd{
 
 struct client_connection_events : 
   events<boost::mpl::set<
@@ -55,5 +51,5 @@ struct client_connection_events :
         , connection_failure> >
 {};
 
-} // namespace umcd
-#endif // UMCD_CLIENT_CONNECTION_EVENTS_HPP
+} // namespace neev
+#endif // NEEV_CLIENT_CONNECTION_EVENTS_HPP

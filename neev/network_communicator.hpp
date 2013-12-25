@@ -10,15 +10,15 @@
 * (it can be split into chunks).
 */
 
-#ifndef UMCD_NETWORK_COMMUNICATOR_HPP
-#define UMCD_NETWORK_COMMUNICATOR_HPP
+#ifndef NEEV_NETWORK_COMMUNICATOR_HPP
+#define NEEV_NETWORK_COMMUNICATOR_HPP
 
-#include "umcd/server/transfer_events.hpp"
+#include <neev/transfer_events.hpp>
 
 #include <boost/enable_shared_from_this.hpp>
 #include <cassert>
 
-#include "umcd/boost/asio/asio.hpp"
+namespace neev{
 
 /** This class is a generic representation of a communication over a network.
 * It provides some logic to split data transfer into chunks.
@@ -195,4 +195,6 @@ void network_communicator<TransferOpCRTP, BufferProvider>::update_bytes_transfer
   bytes_chunk_transferred_ = bytes_in_buffer;
 }
 
-#endif // UMCD_NETWORK_COMMUNICATOR_HPP
+} // namespace neev
+
+#endif // NEEV_NETWORK_COMMUNICATOR_HPP

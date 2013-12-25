@@ -7,8 +7,10 @@
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
 
-#ifndef UMCD_EVENTS_ENUM_IMPL_HPP
-#define UMCD_EVENTS_ENUM_IMPL_HPP
+#ifndef NEEV_EVENTS_ENUM_IMPL_HPP
+#define NEEV_EVENTS_ENUM_IMPL_HPP
+
+#include <neev/traits/event_slot.hpp>
 
 #include <boost/preprocessor/repetition/repeat.hpp>
 #include <boost/preprocessor/repetition/enum_params.hpp>
@@ -19,9 +21,7 @@
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
 
-#include "umcd/server/traits/event_slot.hpp"
-#include "umcd/boost/static_assert.hpp"
-
+namespace neev{
 namespace detail{
 namespace mpl = boost::mpl;
 
@@ -140,6 +140,6 @@ public:/*
   }*/
 };
 
-} // namespace detail
+}} // namespace neev::detail
 
-#endif // UMCD_EVENTS_ENUM_IMPL_HPP
+#endif // NEEV_EVENTS_ENUM_IMPL_HPP

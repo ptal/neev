@@ -9,10 +9,12 @@
 /** @file Represents a transfer of data over the network.
 */
 
-#ifndef UMCD_NETWORK_TRANSFER_HPP
-#define UMCD_NETWORK_TRANSFER_HPP
+#ifndef NEEV_NETWORK_TRANSFER_HPP
+#define NEEV_NETWORK_TRANSFER_HPP
 
-#include "umcd/server/network_communicator.hpp"
+#include <neev/network_communicator.hpp>
+
+namespace neev{
 
 struct transfer_complete;
 
@@ -89,4 +91,6 @@ private:
   boost::asio::deadline_timer timer_;
 };
 
-#endif // UMCD_NETWORK_SENDER_HPP
+} // namespace neev
+
+#endif // NEEV_NETWORK_SENDER_HPP

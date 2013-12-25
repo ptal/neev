@@ -6,15 +6,16 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef UMCD_EVENTS_TYPE_SELECTOR_HPP
-#define UMCD_EVENTS_TYPE_SELECTOR_HPP
+#ifndef NEEV_EVENTS_TYPE_SELECTOR_HPP
+#define NEEV_EVENTS_TYPE_SELECTOR_HPP
 
-#include "umcd/server/detail/events_enum_impl.hpp"
-#include "umcd/server/detail/events_set_impl.hpp"
-#include "umcd/server/traits/enum_size.hpp"
+#include <neev/detail/events_enum_impl.hpp>
+#include <neev/detail/events_set_impl.hpp>
+#include <neev/traits/enum_size.hpp>
 
 #include <boost/mpl/sequence_tag.hpp>
 
+namespace neev{
 namespace detail{
 
 /** Class select the underlining type of an event: enum or tags.
@@ -35,6 +36,6 @@ class events_type_selector<EventEnumType, true>
 {
 };
 
-} // namespace detail
+}} // namespace neev::detail
 
-#endif // UMCD_EVENTS_TYPE_SELECTOR_HPP
+#endif // NEEV_EVENTS_TYPE_SELECTOR_HPP

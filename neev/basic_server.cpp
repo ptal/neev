@@ -6,9 +6,11 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#include "umcd/server/basic_server.hpp"
+#include <neev/basic_server.hpp>
 #include <boost/make_shared.hpp>
 #include <boost/current_function.hpp>
+
+namespace neev{
 
 basic_server::basic_server()
 : io_service_()
@@ -100,3 +102,5 @@ boost::asio::io_service& basic_server::get_io_service()
 {
   return io_service_;
 }
+
+} // namespace neev

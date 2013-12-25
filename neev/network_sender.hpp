@@ -9,10 +9,12 @@
 /** @file Asynchronously send data over the network.
 */
 
-#ifndef UMCD_NETWORK_SENDER_HPP
-#define UMCD_NETWORK_SENDER_HPP
+#ifndef NEEV_NETWORK_SENDER_HPP
+#define NEEV_NETWORK_SENDER_HPP
 
-#include "umcd/server/network_transfer.hpp"
+#include <neev/network_transfer.hpp>
+
+namespace neev{
 
 /** Wrap calls the boost::asio::async_write method and bind argument to it.
 *
@@ -61,4 +63,6 @@ public:
   }
 };
 
-#endif // UMCD_NETWORK_SENDER_HPP
+} // namespace neev
+
+#endif // NEEV_NETWORK_SENDER_HPP
