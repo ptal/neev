@@ -35,13 +35,12 @@ struct event_slot<transfer_error>
   typedef void type(const boost::system::error_code&);
 };
 
-// Create the event class, a simple typedef on events that
-// gather all event previously declared with boost::mpl::set.
+// Create the event class, a simple typedef on events gathering
+// all event previously declared.
 
 struct transfer_events
-: events<boost::mpl::set<
-        transfer_complete
-      , transfer_error> >
+: events<transfer_complete
+       , transfer_error>
 {};
 
 // Finally you can use this class wherever you need this particular set of
@@ -97,12 +96,6 @@ private:
 
 namespace neev{
 
-/** Provides slot registration (with on_event) and event triggering (with signal_event)
-* for each events in the EventSequence.
-*
-* @see events_set_impl for a more detailled description of the methods.
-*/
-
 namespace detail {
 struct EmptyEvent;
 }
@@ -123,6 +116,11 @@ struct EmptyEvent;
   BOOST_PP_COMMA_IF(count)                      \
   Event##count
 
+/** Provides slot registration (with on_event) and event triggering (with signal_event)
+* for each events in the EventSequence.
+*
+* @see events_set_impl for a more detailled description of the methods.
+*/
 template <class Event0, 
   BOOST_PP_REPEAT(BOOST_PP_SUB(EVENT_LIMIT_ARG_IMPL,1), MAKE_EMPTY_EVENT_TEMPLATE_LIST, ~)
 >
