@@ -15,23 +15,24 @@
 #include <boost/enable_shared_from_this.hpp>
 
 namespace neev{
+namespace detail{
 
-class client : 
-    public boost::enable_shared_from_this<client>
-  , public boost::noncopyable
+class shared_client :
+  public boost::enable_shared_from_this<shared_client>
+, public boost::noncopyable
 {
 private:
   typedef boost::asio::ip::tcp::resolver resolver_type;
+
 public:
   typedef boost::asio::ip::tcp::socket socket_type;
   typedef boost::shared_ptr<socket_type> socket_ptr;
 
   /** Build the client with a io_service, it doesn't launch anything.
   */
-  client(boost::asio::io_service &io_service)
-  : io_service_(io_service)
-  , socket_(boost::make_shared<socket_type>(boost::ref(io_service_)))
-  , resolver_(io_service_)
+  shared_client(boost::asio::io_service &io_service)
+  : socket_(boost::make_shared<socket_type>(boost::ref(io_service)))
+  , resolver_(io_service)
   {}
 
   /** Asynchronous connection to the specified (host, service) couple.
@@ -42,7 +43,7 @@ public:
     // into a list of endpoints.
     boost::asio::ip::tcp::resolver::query query(host, service);
     resolver_.async_resolve(query,
-      boost::bind(&client::handle_resolve, shared_from_this(),
+      boost::bind(&shared_client::handle_resolve, shared_from_this(),
         boost::asio::placeholders::error,
         boost::asio::placeholders::iterator));
   }
@@ -102,8 +103,8 @@ private:
     {
       boost::asio::async_connect(*socket_
         , endpoint_iterator
-        , boost::bind(&client::before_connect, shared_from_this(), _1, _2)
-        , boost::bind(&client::handle_connect, shared_from_this(), _1, _2));
+        , boost::bind(&shared_client::before_connect, shared_from_this(), _1, _2)
+        , boost::bind(&shared_client::handle_connect, shared_from_this(), _1, _2));
     }
     else
     {
@@ -127,10 +128,58 @@ private:
     }
   }
 
-  boost::asio::io_service &io_service_;
   socket_ptr socket_;
   resolver_type resolver_;
   client_connection_events events_;
+};
+
+/** Build the client with a io_service, it doesn't launch anything.
+*/
+boost::shared_ptr<shared_client> make_shared_client(boost::asio::io_service &io_service)
+{
+  return boost::make_shared<shared_client>(boost::ref(io_service));
+}
+
+} // namespace detail
+
+class client : public boost::noncopyable
+{
+public:
+  typedef boost::asio::ip::tcp::socket socket_type;
+  typedef boost::shared_ptr<socket_type> socket_ptr;
+
+  client(boost::asio::io_service &io_service)
+  : shared_client(detail::make_shared_client(io_service))
+  {}
+
+  /** Asynchronous connection to the specified (host, service) couple.
+  */
+  void async_connect(const std::string& host, const std::string& service)
+  {
+    shared_client->async_connect(host, service);
+  }
+
+  /** Add an event to the current object.
+  * @pre Event must be an event of the client_connection_events class.
+  * @note The event try_connecting_with_ip will only be trigerred if the Boost version is 
+  * greater or equal than 1.48.
+  */
+  template <class Event, class F>
+  boost::signals2::connection on_event(F f)
+  {
+    return shared_client->on_event<Event>(f);
+  }
+
+  /**
+  * @return the current socket.
+  */
+  socket_ptr socket()
+  {
+    return shared_client->socket();
+  }
+
+private:
+  boost::shared_ptr<detail::shared_client> shared_client;
 };
 
 } // namespace neev
