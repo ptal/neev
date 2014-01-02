@@ -45,10 +45,9 @@ struct event_slot<connection_failure>
 };
 
 struct client_connection_events : 
-  events<boost::mpl::set<
-          try_connecting_with_ip
-        , connection_success
-        , connection_failure> >
+  events<try_connecting_with_ip
+       , connection_success
+       , connection_failure>
 {};
 
 } // namespace neev

@@ -157,20 +157,6 @@ public:
   }
 };
 
-/** Class checking that the sequence meets is a mpl::set.
-* We use a set because it doesn't make sense to add twice an event.
-*/
-template <class EventSequence, class sequence_tag>
-class events_set_impl_tag
-{
-  BOOST_STATIC_ASSERT_MSG(sizeof(EventSequence) == 0, "** The sequence must be a boost::mpl::set. **");
-};
-
-template <class EventSequence>
-class events_set_impl_tag<EventSequence, mpl::aux::set_tag>
-: public events_set_impl<EventSequence>
-{};
-
 }} // namespace neev::detail
 
 #endif // NEEV_EVENTS_SET_IMPL_HPP

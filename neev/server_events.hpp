@@ -77,13 +77,12 @@ struct event_slot<on_new_client>
 };
 
 struct server_events : 
-  events<boost::mpl::set<
-          endpoint_failure
-        , start_success
-        , start_failure
-        , on_run_exception
-        , on_run_unknown_exception
-        , on_new_client> >
+  events<endpoint_failure
+       , start_success
+       , start_failure
+       , on_run_exception
+       , on_run_unknown_exception
+       , on_new_client>
 {};
 
 } // namespace neev

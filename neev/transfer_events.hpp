@@ -56,11 +56,10 @@ struct event_slot<chunk_complete>
 };
 
 struct transfer_events
-: events<boost::mpl::set<
-        transfer_complete
-      , transfer_error
-      , transfer_on_going
-      , chunk_complete> >
+: events<transfer_complete
+       , transfer_error
+       , transfer_on_going
+       , chunk_complete>
 {};
 
 } // namespace neev
