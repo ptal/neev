@@ -4,12 +4,13 @@
 // (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <boost/type_traits.hpp>
+#include <boost/iterator/detail/minimum_category.hpp>
 
 namespace neev{
 namespace detail{
 
 #define GENERATE_HAS_MEMBER(M)                                          \
-template<typename T>                                                    \
+template<class T>                                                       \
 class has_member_##M                                                    \
 {                                                                       \
   struct fallback { int X; };                                           \
@@ -26,7 +27,7 @@ public:                                                                 \
 };
 
 #define GENERATE_HAS_TYPE(MT)                                           \
-template<typename T>                                                    \
+template<class T>                                                       \
 class has_type_##MT                                                     \
 {                                                                       \
   typedef char yes[1];                                                  \
@@ -44,7 +45,7 @@ GENERATE_HAS_MEMBER(end)
 GENERATE_HAS_TYPE(iterator)
 GENERATE_HAS_TYPE(const_iterator)
 
-template <typename T, bool fundamental = boost::is_fundamental<T>::value>
+template <class T, bool fundamental = boost::is_fundamental<T>::value>
 struct is_iterable
 : boost::integral_constant<bool,
     has_member_begin<T>::value &&
@@ -57,12 +58,12 @@ struct is_iterable
 >
 {};
 
-template <typename T>
+template <class T>
 struct is_iterable<T, true>
 : boost::false_type
 {};
 
-template <typename T, bool iterable = is_iterable<T>::value>
+template <class T, bool iterable = is_iterable<T>::value>
 struct iterable_nested_depth
 : boost::integral_constant<std::size_t,
     iterable_nested_depth<
@@ -75,17 +76,17 @@ struct iterable_nested_depth
 >
 {};
 
-template <typename T>
+template <class T>
 struct iterable_nested_depth<T, false>
 : boost::integral_constant<std::size_t, 0>
 {};
 
-template <typename Iterator>
+template <class Iterator>
 struct iterator_nested_depth
 : iterable_nested_depth<typename Iterator::value_type>
 {};
 
-template <typename Iterator>
+template <class Iterator>
 class inner_iterator
 {
   typedef typename Iterator::value_type value_type;
@@ -98,27 +99,66 @@ public:
 };
 
 template <
-  typename Iterator, 
+  class Iterator, 
   std::size_t depth=iterator_nested_depth<Iterator>::value
 >
 struct innermost_iterator
 : innermost_iterator<typename inner_iterator<Iterator>::type, depth-1>
 {};
 
-template <typename Iterator>
+template <class Iterator>
 struct innermost_iterator<Iterator, 0>
 {
   typedef Iterator type;
 };
 
 template <
-  typename Iterator,
+  class Iterator,
   std::size_t depth=iterator_nested_depth<Iterator>::value
 >
-struct innermost_iterator_value
+struct innermost_iterator_value_type
 {
   typedef typename 
     innermost_iterator<Iterator, depth>::type::value_type type;
 };
+
+template <
+  class Iterator,
+  std::size_t depth,
+  class MinimumTraversalTag
+>
+struct minimum_nested_iterator_category_impl
+{
+private:
+  typedef typename boost::iterator_traversal<Iterator>::type traversal_tag;
+public:
+  typedef typename minimum_nested_iterator_category_impl<
+    typename inner_iterator<Iterator>::type,
+    depth - 1,
+    typename boost::detail::minimum_category<traversal_tag, MinimumTraversalTag>::type
+  >::type type;
+};
+
+template <
+  class Iterator,
+  class MinimumTraversalTag
+>
+struct minimum_nested_iterator_category_impl<Iterator, 0, MinimumTraversalTag>
+{
+  typedef MinimumTraversalTag type;
+};
+
+template <
+  class Iterator,
+  std::size_t depth=iterator_nested_depth<Iterator>::value,
+  class MinimumTraversalTag = typename boost::iterator_traversal<Iterator>::type
+>
+struct minimum_nested_iterator_category
+: minimum_nested_iterator_category_impl<
+    Iterator,
+    depth,
+    MinimumTraversalTag
+>
+{};
 
 }} // namespace neev::detail
