@@ -110,21 +110,15 @@ namespace neev
     , m_end(end_)
     {}
 
-    // template<class OtherIterator>
-    // flatten_iterator(
-    //     flatten_iterator<OtherIterator> const& t
-    //     , typename boost::enable_if_convertible<OtherIterator, Iterator>::type* = 0
-    //     )
-    //     : super_t(t.base()), m_end(t.end()) {}
+    template<class OtherIterator>
+    flatten_iterator(flatten_iterator<OtherIterator, 0> const& t
+    , typename boost::enable_if_convertible<OtherIterator, Iterator>::type* = 0)
+    : super_t(t.base()), m_end(t.end()) {}
 
     Iterator end() const { return m_end; }
 
    private:
-    bool decrement_impl(
-      typename boost::enable_if_convertible<
-        typename detail::flatten_iterator_category_tag<Iterator, 0>::type,
-        boost::bidirectional_traversal_tag
-      >::type* = 0)
+    bool decrement_impl()
     {
       if(this->base() != this->begin())
       {
@@ -187,19 +181,17 @@ namespace neev
       : super_t(x)
       , m_end(end_)
       {
-        if(this->base() != end())
+        if(this->base_reference() != end())
         {
           update_inner();
           skip_forward_empty_inner();
         }
       }
 
-      // template<class OtherIterator>
-      // flatten_iterator(
-      //     flatten_iterator<OtherIterator> const& t
-      //     , typename boost::enable_if_convertible<OtherIterator, Iterator>::type* = 0
-      //     )
-      //     : super_t(t.base()), m_end(t.end()) {}
+      template<class OtherIterator>
+      flatten_iterator(flatten_iterator<OtherIterator, depth> const& t
+      , typename boost::enable_if_convertible<OtherIterator, Iterator>::type* = 0)
+      : super_t(t.base()), m_end(t.end()) {}
 
       Iterator end() const { return m_end; }
 
@@ -213,12 +205,12 @@ namespace neev
 
       void skip_forward_empty_inner()
       {
-        if(this->base() != end())
+        if(this->base_reference() != end())
         {
           while(inner.base() == inner.end())
           {
             ++(this->base_reference());
-            if(this->base() != end())
+            if(this->base_reference() != end())
               update_inner();
             else break;
           }
@@ -231,11 +223,7 @@ namespace neev
         skip_forward_empty_inner();
       }
 
-      bool update_inner_to_end(
-        typename boost::enable_if_convertible<
-          typename detail::flatten_iterator_category_tag<Iterator, depth>::type,
-          boost::bidirectional_traversal_tag
-        >::type* = 0)
+      bool update_inner_to_end()
       {
         typedef typename inner_iterator_type::base_iterator_type inner_base_iterator;
         inner_base_iterator b = this->base()->begin();
@@ -251,17 +239,13 @@ namespace neev
         }
       }
 
-      bool decrement_impl(
-        typename boost::enable_if_convertible<
-          typename detail::flatten_iterator_category_tag<Iterator, depth>::type,
-          boost::bidirectional_traversal_tag
-        >::type* = 0)
+      bool decrement_impl()
       {
         if(inner.decrement_impl())
           return true;
         else
         {
-          while(this->base() != this->begin())
+          while(this->base_reference() != this->begin())
           {
             --(this->base_reference());
             if(update_inner_to_end())
@@ -271,11 +255,7 @@ namespace neev
         }
       }
 
-      void decrement(
-        typename boost::enable_if_convertible<
-          typename detail::flatten_iterator_category_tag<Iterator, depth>::type,
-          boost::bidirectional_traversal_tag
-        >::type* = 0)
+      void decrement()
       {
         decrement_impl();
       }
