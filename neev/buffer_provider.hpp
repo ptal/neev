@@ -9,7 +9,6 @@
 #ifndef NEEV_BUFFER_PROVIDER_HPP
 #define NEEV_BUFFER_PROVIDER_HPP
 
-#include <neev/transfer_events.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 namespace neev{
@@ -18,8 +17,8 @@ namespace neev{
 * Meaning that this size can rise.
 * You must inherit from this class.
 */
-template <class Buffer>
-class buffer_provider : public boost::enable_shared_from_this<buffer_provider<Buffer> >
+template <class Buffer, class BufferProviderCRTP>
+class buffer_provider : public boost::enable_shared_from_this<buffer_provider<Buffer, BufferProviderCRTP> >
 {
 public:
   typedef Buffer buffer_type;
@@ -34,8 +33,17 @@ public:
     return buffer_;
   }
 
+  // TODO http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Member_Detector
+  // Provide default impl otherwise.
+  bool is_complete(std::size_t bytes_transferred) const
+  {
+    return static_cast<const BufferProviderCRTP*>(this)->is_complete(bytes_transferred);
+  }
+
 protected:
-  buffer_provider(){}
+  buffer_provider()
+  {}
+
   ~buffer_provider(){}
 
   /** This constructor is mainly for buffer that have no default constructor.

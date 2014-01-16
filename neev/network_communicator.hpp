@@ -136,15 +136,17 @@ boost::signals2::connection network_communicator<TransferOpCRTP, BufferProvider>
   return events_.on_event<Event>(f);
 }
 
-// We ignore the error, it will be handled by the on_chunk_complete operation.
+// We ignore the treatment of the error, it will be handled by the on_chunk_complete operation.
 template <class TransferOpCRTP, class BufferProvider>
 std::size_t network_communicator<TransferOpCRTP, BufferProvider>::is_transfer_complete(const boost::system::error_code& error,
   std::size_t bytes_in_buffer)
 {
   update_bytes_transferred(bytes_in_buffer);
-  events_.signal_event<transfer_on_going>(bytes_transferred(), bytes_to_transfer());
-  if(!error && !timed_out_)
+  if(!error && !timed_out_ && !buffer_provider_->is_complete(bytes_transferred_))
+  {
+    events_.signal_event<transfer_on_going>(bytes_transferred(), bytes_to_transfer());
     return bytes_to_transfer() - bytes_transferred();
+  }
   else
     return 0;
 }
