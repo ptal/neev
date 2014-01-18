@@ -75,9 +75,9 @@ private:
     this->bytes_to_transfer_ += data_.size();
   }
 
-  boost::signals2::connection on_chunk_event_;
-  payload_size_type payload_size_;
   std::string data_;
+  payload_size_type payload_size_;
+  boost::signals2::connection on_chunk_event_;
 };
 
 } // namespace neev

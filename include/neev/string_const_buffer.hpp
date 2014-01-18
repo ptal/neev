@@ -46,22 +46,22 @@ public:
 private:
   void init_buffers();
 
-  payload_size_type payload_size;
-  std::string data;
+  std::string data_;
+  payload_size_type payload_size_;
 };
 
 template <class PayloadSize>
 string_const_buffer<PayloadSize>::string_const_buffer(std::string&& data)
-: data(data)
-, payload_size(hton(static_cast<payload_size_type>(data.size())))
+: data_(data)
+, payload_size_(hton(static_cast<payload_size_type>(data_.size())))
 {
   init_buffers();
 }
 
 template <class PayloadSize>
 string_const_buffer<PayloadSize>::string_const_buffer(const std::string& data)
-: data(data)
-, payload_size(hton(static_cast<payload_size_type>(data.size())))
+: data_(data)
+, payload_size_(hton(static_cast<payload_size_type>(data_.size())))
 {
   init_buffers();
 }
@@ -69,8 +69,8 @@ string_const_buffer<PayloadSize>::string_const_buffer(const std::string& data)
 template <class PayloadSize>
 void string_const_buffer<PayloadSize>::init_buffers()
 {
-  this->buffer_.push_back(boost::asio::buffer(reinterpret_cast<const char*>(&payload_size), sizeof(payload_size)));
-  this->buffer_.push_back(boost::asio::buffer(data));
+  this->buffer_.push_back(boost::asio::buffer(reinterpret_cast<const char*>(&payload_size_), sizeof(payload_size_)));
+  this->buffer_.push_back(boost::asio::buffer(data_));
   this->bytes_to_transfer_ = boost::asio::buffer_size(this->buffer_);
 }
 

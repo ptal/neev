@@ -1,11 +1,12 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE.txt
 // 
-// (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
+// (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
-#include <ctime>
 #include <neev/basic_server.hpp>
 #include <neev/string_const_buffer.hpp>
+#include <ctime>
+#include <iostream>
 
 using namespace neev;
 

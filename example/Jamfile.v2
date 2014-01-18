@@ -1,0 +1,22 @@
+# Distributed under the Boost Software License, Version 1.0. (See
+# accompanying file LICENSE.txt
+# 
+# (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
+use-project neev : ../build ;
+
+project neev/example
+  : requirements
+    <include>../include
+    <include>../Boost.Endian/include
+    <library>../build//neev
+
+    <toolset>gcc:<cxxflags>-std=c++11
+  ;
+
+lib boost_system ;
+lib boost_thread ;
+lib pthread ;
+
+exe daytime_server : daytime/daytime_server.cpp boost_system pthread boost_thread ;
+exe daytime_client : daytime/daytime_client.cpp boost_system pthread boost_thread ;

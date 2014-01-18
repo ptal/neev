@@ -1,11 +1,12 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE.txt
 // 
-// (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
+// (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/client/client.hpp>
 #include <neev/string_mutable_buffer.hpp>
 #include <boost/bind.hpp>
+#include <iostream>
 
 void print_date(const boost::shared_ptr<neev::string_mutable_buffer<> >& buf)
 {
