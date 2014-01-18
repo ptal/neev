@@ -26,7 +26,7 @@ struct chunk_complete{}; // Useful to launch the next op.
 template <>
 struct event_slot<transfer_complete>
 {
-  /** A function declaration with no argument, just to notify the fact that the transfer is finished.
+  /** A function declaration with no argument, just to notify that the transfer is finished.
   */
   typedef void type();
 };

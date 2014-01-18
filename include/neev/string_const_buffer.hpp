@@ -42,6 +42,9 @@ public:
   {
     return bytes_transferred == this->bytes_to_transfer_;
   }
+
+  std::string& data() { return data_; }
+  const std::string& data() const { return data_; }
   
 private:
   void init_buffers();

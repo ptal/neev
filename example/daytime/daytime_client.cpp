@@ -8,16 +8,17 @@
 #include <boost/bind.hpp>
 #include <iostream>
 
-void print_date(const boost::shared_ptr<neev::string_mutable_buffer<> >& buf)
+void print_date(const std::string& date)
 {
-  std::cout << buf->data() << std::endl;
+  std::cout << date << std::endl;
 }
 
 void receive_date(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   auto buf = boost::make_shared<neev::string_mutable_buffer<> >();
   auto receiver = buf->make_receiver(socket);
-  receiver->on_event<neev::transfer_complete>(boost::bind(print_date, buf));
+  receiver->on_event<neev::transfer_complete>(
+    boost::bind(print_date, boost::cref(buf->data())));
   receiver->async_receive();
 }
 
