@@ -6,7 +6,7 @@
 // 
 // (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
 
-#include <neev/multi_threaded/server_mt.hpp>
+#include <neev/server/server_mt.hpp>
 #include <boost/thread/thread.hpp>
 #include <boost/make_shared.hpp>
 #include <stdexcept>

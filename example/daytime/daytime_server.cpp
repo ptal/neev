@@ -3,7 +3,7 @@
 // 
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
-#include <neev/basic_server.hpp>
+#include <neev/server/basic_server.hpp>
 #include <neev/string_const_buffer.hpp>
 #include <ctime>
 #include <iostream>

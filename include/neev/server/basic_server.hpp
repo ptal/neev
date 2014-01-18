@@ -9,7 +9,7 @@
 #ifndef NEEV_SERVER_BASIC_SERVER_HPP
 #define NEEV_SERVER_BASIC_SERVER_HPP
 
-#include <neev/server_events.hpp>
+#include <neev/server/server_events.hpp>
 #include <boost/asio.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/function.hpp>
