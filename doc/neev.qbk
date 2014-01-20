@@ -1,0 +1,59 @@
+[article Neev
+    [quickbook 1.6]
+    [copyright 2014 Pierre Talbot]
+    [license
+        Distributed under the Boost Software License, Version 1.0.
+        (See accompanying file LICENSE_1_0.txt)
+    ]
+    [authors [Talbot, Pierre]]
+]
+
+[def __spaces '''&#x2000;&#x2000;'''] [/ two spaces - useful for an indent.]
+
+[section:neev Neev]
+
+This is an event-driven library on top of Boost.Asio.
+
+[section:acks Acknowledgements]
+
+The author thanks the Battle for Wesnoth organization in which this project started.
+
+[endsect] [/section:acks Acknowledgements]
+
+[section:version_id Version Info]
+
+Last edit to Quickbook file __FILENAME__ was at __TIME__ on __DATE__.
+
+[warning Home page "Last revised" is GMT, not local time.  Last edit date is local time.]
+
+[endsect] [/section:version_id Version Info]
+
+[endsect] [/section:neev Neev]
+
+[xinclude autodoc.xml] [/ Using Doxygen reference documentation.]
+
+[/This (if enabled) creates an Index section that include the class, function ... indexes, and also a full index with <index/>]
+[? enable_index
+'''
+  <index type="class_name">
+   <title>Class Index</title>
+  </index>
+  
+  <index type="typedef_name">
+  <title>Typedef Index</title>
+  </index>
+  
+  <index type="function_name">
+   <title>Function Index</title>
+  </index>
+
+    
+  <index type="macro_name">
+  <title>Macro Index</title>
+  </index>
+
+  <index/>
+
+'''
+] 
+[/if enable_index]
