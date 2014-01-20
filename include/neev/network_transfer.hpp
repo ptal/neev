@@ -12,8 +12,6 @@
 #ifndef NEEV_NETWORK_TRANSFER_HPP
 #define NEEV_NETWORK_TRANSFER_HPP
 
-#include <neev/network_communicator.hpp>
-
 namespace neev{
 
 struct transfer_complete;
@@ -24,73 +22,208 @@ struct transfer_complete;
 *
 * @see network_sender network_receiver
 */
-template <class TransferOp, class BufferProvider>
-class network_transfer : public network_communicator<network_transfer<TransferOp, BufferProvider>, BufferProvider>
+template <class TransferOp, class BufferProvider, class TimerPolicy = no_timer>
+class network_transfer
+: private boost::noncopyable
+, private TimerPolicy
+, public boost::enable_shared_from_this<network_transfer<TransferOpCRTP, BufferProvider> >
 {
 public:
-  typedef network_transfer<TransferOp, BufferProvider> this_type;
-  typedef network_communicator<this_type, BufferProvider> base_type;
   typedef boost::asio::ip::tcp::socket socket_type;
   typedef boost::shared_ptr<socket_type> socket_ptr;
+  typedef network_transfer<TransferOp, BufferProvider, TimerPolicy> this_type;
+  typedef typename BufferProvider::buffer_type buffer_type;
+
+  network_transfer(const socket_ptr& socket, BufferProvider&& buffer_provider)
+  : TimerPolicy(socket->get_io_service())
+  , socket_(socket)
+  , buffer_provider_(buffer_provider)
+  { 
+    BOOST_ASSERT_MSG(static_cast<bool>(socket), "Cannot construct a network_transfer object with a uninitialized socket.");
+  }
+
+  /**
+  * @return The number of bytes that remains to transfer. This number can
+  * possibly be dynamically updated by the buffer provider.
+  */
+  std::size_t bytes_to_transfer() const;
+  std::size_t bytes_transferred() const;
+  bool is_done() const;
+
+  /** The slot function f will be triggered each time the event Event is reported.
+  */
+  template <class Event, class F>
+  boost::signals2::connection on_event(F f);
 
   /** Start an asynchronous transfer of data.
   */
   void async_transfer()
   {
-    assert(static_cast<bool>(socket));
-    if(!this->is_done())
-      async_transfer_impl();
-  }
-
-  void async_transfer(const boost::posix_time::time_duration& timeout)
-  {
-    assert(timeout.total_nanoseconds() != 0);
     if(!this->is_done())
     {
-      this->template on_event<transfer_complete>(boost::bind(&this_type::cancel_timeout, this));
-      timer_.expires_from_now(timeout);
-      timer_.async_wait(boost::bind(&this_type::on_timeout, this, _1));
+      async_transfer_impl();
     }
   }
 
-protected:
-  network_transfer(const socket_ptr& socket, const boost::shared_ptr<BufferProvider>& buffer_provider)
-  : base_type(buffer_provider)
-  , socket_(socket)
-  , timer_(socket->get_io_service())
-  {}
-
-public:
-  /** Until the transfer is done, we relaunch the transfer operation.
-  * @note Can't be private due to the CRTP..
-  */
-  void async_transfer_impl()
+  void async_transfer(const boost::posix_time::time_duration& timeout,
+    typename boost::disable_if<boost::is_same<TimerPolicy, no_timer> >::type* = 0)
   {
-    static_cast<TransferOp*>(this)->async_transfer(socket_, this->use_buffer());
+    if(!this->is_done())
+    {
+      this->launch(timeout);
+      async_transfer_impl();
+    }
+  }
+
+  void cancel(boost::system::error_code &error)
+  {
+    socket_->cancel(error);
   }
 
 private:
-  void cancel_timeout()
+  void async_transfer_impl()
   {
-    timer_.cancel();
+    TransferOp::async_transfer(*socket_
+    , use_buffer()
+    , boost::bind(&this_type::is_transfer_complete, this->shared_from_this()
+      , boost::asio::placeholders::error
+      , boost::asio::placeholders::bytes_transferred)
+    , boost::bind(&this_type::on_chunk_complete, this->shared_from_this()
+      , boost::asio::placeholders::error
+      , boost::asio::placeholders::bytes_transferred)
+    );
   }
 
-  /** In some case we'll close
+  /** Tell the asynchronous operation whether the transfer is complete or not.
+  * @return The number of bytes the current operation needs to transfer yet.
+  * @note Should be protected but there is some problems in the derived class 
+  * to access it in a bind declaration.
   */
-  void on_timeout(const boost::system::error_code& error)
+  std::size_t is_transfer_complete(const boost::system::error_code& error,
+    std::size_t bytes_transferred);
+
+  /** This method is called when the transfer is complete.
+  * @note Should be protected but there is some problems in the derived class 
+  * to access it in a bind declaration.
+  */
+  void on_chunk_complete(const boost::system::error_code& error,
+    std::size_t bytes_transferred);
+
+  buffer_type use_buffer() const;
+  void update_bytes_transferred(std::size_t bytes_in_buffer);
+
+  transfer_events events_;
+  socket_ptr socket_;
+  BufferProvider buffer_provider_;
+  std::size_t bytes_transferred_;
+  std::size_t bytes_chunk_transferred_;
+};
+
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+network_transfer<TransferOp, BufferProvider, TimerPolicy>::network_transfer(const socket_ptr& socket, BufferProvider&& buffer_provider)
+: TimerPolicy(socket->get_io_service())
+, socket_(socket)
+, buffer_provider_(buffer_provider)
+, bytes_transferred_(0)
+, bytes_chunk_transferred_(0)
+{ 
+  BOOST_ASSERT_MSG(static_cast<bool>(socket), "Cannot construct a network_transfer object with a uninitialized socket.");
+}
+
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+std::size_t network_transfer<TransferOp, BufferProvider, TimerPolicy>::bytes_to_transfer() const
+{
+  return buffer_provider_->bytes_to_transfer();
+}
+
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+std::size_t network_transfer<TransferOp, BufferProvider, TimerPolicy>::bytes_transferred() const
+{
+  return bytes_transferred_;
+}
+
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+bool network_transfer<TransferOp, BufferProvider, TimerPolicy>::is_done() const
+{
+  return bytes_to_transfer() == bytes_transferred();
+}
+
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+typename network_transfer<TransferOp, BufferProvider, TimerPolicy>::buffer_type
+network_transfer<TransferOp, BufferProvider, TimerPolicy>::use_buffer() const
+{
+  return buffer_provider_->use_buffer();
+}
+
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+template <class Event, class F>
+boost::signals2::connection network_transfer<TransferOp, BufferProvider, TimerPolicy>::on_event(F f)
+{
+  return events_.on_event<Event>(f);
+}
+
+// We ignore the treatment of the error, it will be handled by the on_chunk_complete operation.
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+std::size_t network_transfer<TransferOp, BufferProvider, TimerPolicy>::is_transfer_complete(
+  const boost::system::error_code& error,
+  std::size_t bytes_in_buffer)
+{
+  update_bytes_transferred(bytes_in_buffer);
+  if(!error && !is_timed_out() && !buffer_provider_->is_complete(bytes_transferred_))
   {
-    if(!error && !this->is_done())
+    events_.signal_event<transfer_on_going>(bytes_transferred(), bytes_to_transfer());
+    return bytes_to_transfer() - bytes_transferred();
+  }
+  else
+    return 0;
+}
+
+/** When the timed out has expired, it is guarantee that the transfer operation will be called at most once again.
+*/
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+void network_transfer<TransferOp, BufferProvider, TimerPolicy>::on_chunk_complete(const boost::system::error_code& error,
+  std::size_t bytes_in_buffer)
+{
+  update_bytes_transferred(bytes_in_buffer);
+  if(timed_out_ || error.value() == boost::asio::error::operation_aborted)
+  {
+    events_.signal_event<transfer_error>(boost::asio::error::make_error_code(boost::asio::error::timed_out));
+  }
+  else if(error)
+  {
+    events_.signal_event<transfer_error>(error);
+  }
+  else
+  {
+    try
     {
-      boost::system::error_code &ignore;
-      this->timed_out_ = true;
-      socket_->cancel(ignore);
+      events_.signal_event<transfer_on_going>(bytes_transferred(), bytes_to_transfer());
+      events_.signal_event<chunk_complete>(events_subscriber_view<transfer_events>(events_));
+      if(is_done())
+      {
+        events_.signal_event<transfer_complete>();
+      }
+      else
+      {
+        // Prepare for the next chunk.
+        bytes_chunk_transferred_ = 0;
+        async_transfer_impl();
+      }
+    }
+    catch(const boost::system::system_error& e)
+    {
+      events_.signal_event<transfer_error>(e.code());
     }
   }
+}
 
-  socket_ptr socket_;
-  boost::asio::deadline_timer timer_;
-};
+template <class TransferOp, class BufferProvider, class TimerPolicy>
+void network_transfer<TransferOp, BufferProvider, TimerPolicy>::update_bytes_transferred(std::size_t bytes_in_buffer)
+{
+  bytes_transferred_ += (bytes_in_buffer - bytes_chunk_transferred_);
+  bytes_chunk_transferred_ = bytes_in_buffer;
+}
 
 } // namespace neev
 
-#endif // NEEV_NETWORK_SENDER_HPP
+#endif // NEEV_NETWORK_TRANSFER_HPP
