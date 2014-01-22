@@ -4,7 +4,7 @@
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/client/client.hpp>
-#include <neev/string_mutable_buffer.hpp>
+#include <neev/fixed_mutable_buffer.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
 
@@ -15,11 +15,12 @@ void print_date(const std::string& date)
 
 void receive_date(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
-  auto buf = boost::make_shared<neev::string_mutable_buffer<> >();
-  auto receiver = buf->make_receiver(socket);
-  receiver->on_event<neev::transfer_complete>(
-    boost::bind(print_date, boost::cref(buf->data())));
-  receiver->async_receive();
+  using namespace neev;
+  auto receiver = make_fixed8_receiver<no_timer>(socket);
+  receiver->on_event<transfer_complete>(
+    boost::bind(print_date, boost::cref(receiver->data())));
+  receiver->async_transfer();
+  std::cout << "waiting for server...\n";
 }
 
 int main()
