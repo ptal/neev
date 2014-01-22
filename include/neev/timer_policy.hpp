@@ -6,6 +6,7 @@
 #ifndef NEEV_TIMEOUT_POLICY_HPP
 #define NEEV_TIMEOUT_POLICY_HPP
 
+#include <neev/transfer_events.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
 
@@ -13,7 +14,7 @@ namespace neev{
 
 struct no_timer
 {
-  no_timeout(boost::asio::io_service&){}
+  no_timer(boost::asio::io_service&){}
   bool is_timed_out() const
   {
     return false;
@@ -23,8 +24,8 @@ struct no_timer
 struct transfer_timer
 {
   transfer_timer(boost::asio::io_service & io_service)
-  : timer_(io_service)
-  , timed_out_(false)
+  : timed_out_(false)
+  , timer_(io_service)
   {}
 
   template <class TransferOpCRTP>
