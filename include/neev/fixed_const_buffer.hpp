@@ -58,6 +58,7 @@ public:
 private:
   base_type& base() { return *static_cast<base_type*>(this); }
   const base_type& base() const { return *static_cast<const base_type*>(this); }
+  
   size_type size_;
 };
 

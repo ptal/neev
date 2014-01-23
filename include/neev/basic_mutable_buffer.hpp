@@ -29,8 +29,8 @@ public:
   {}
 
   basic_mutable_buffer(basic_mutable_buffer&& buf)
-  : data_(buf.data_, 0)
-  , buffer_(nullptr, 0)
+  : data_(std::move(buf.data_))
+  , buffer_(std::move(buf.buffer_))
   {}
 
   void init(events_subscriber_view<transfer_events>)

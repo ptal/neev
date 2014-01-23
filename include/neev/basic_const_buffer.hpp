@@ -43,7 +43,8 @@ public:
   {}
 
   basic_const_buffer(basic_const_buffer&& buf)
-  : data_(std::move(buf.data_))
+  : buffer_(std::move(buf.buffer_))
+  , data_(std::move(buf.data_))
   {}
 
   void init(events_subscriber_view<transfer_events>)
