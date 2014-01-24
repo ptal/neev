@@ -57,7 +57,7 @@ public:
   /** The slot function f will be triggered each time the event Event is reported.
   */
   template <class Event, class F>
-  boost::signals2::connection on_event(F f);
+  boost::signals2::connection on_event(F f, boost::signals2::connect_position pos = boost::signals2::at_back);
 
   /** Start an asynchronous transfer of data.
   */
@@ -171,9 +171,10 @@ network_transfer<BufferProvider, TransferOp, TimerPolicy>::use_buffer() const
 
 template <class BufferProvider, class TransferOp, class TimerPolicy>
 template <class Event, class F>
-boost::signals2::connection network_transfer<BufferProvider, TransferOp, TimerPolicy>::on_event(F f)
+boost::signals2::connection network_transfer<BufferProvider, TransferOp, TimerPolicy>::
+on_event(F f, boost::signals2::connect_position pos)
 {
-  return events_.on_event<Event>(f);
+  return events_.on_event<Event>(f, pos);
 }
 
 // We ignore the treatment of the error, it will be handled by the on_chunk_complete operation.
