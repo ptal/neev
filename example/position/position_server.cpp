@@ -4,23 +4,24 @@
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/server/basic_server.hpp>
-#include <neev/fixed_const_buffer.hpp>
-#include <ctime>
+#include <neev/archive_const_buffer.hpp>
 #include <iostream>
+#include <random>
+#include "position.hpp"
 
 using namespace neev;
 
-std::string make_daytime_string()
+position make_position()
 {
-  using namespace std; // For time_t, time and ctime;
-  time_t now = time(0);
-  return ctime(&now);
+  std::random_device rd;
+  std::uniform_int_distribution<std::int32_t> dist(0,5000);
+  return position(dist(rd), dist(rd), dist(rd));
 }
 
 void new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   std::cout << "new client...\n";
-  auto sender = neev::make_fixed8_sender<no_timer>(socket, make_daytime_string());
+  auto sender = neev::make_archive8_sender<no_timer>(socket, make_position());
   sender->on_event<neev::transfer_complete>([](){std::cout << "data sent!" << std::endl;});
   sender->async_transfer();
 }

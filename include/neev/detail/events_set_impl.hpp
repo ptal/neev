@@ -60,9 +60,10 @@ public:
   typename boost::enable_if<
       boost::is_same<Event, event_type>
     , boost::signals2::connection
-  >::type on_event(boost::function<event_slot_type> slot_function)
+  >::type on_event(boost::function<event_slot_type> slot_function, 
+    boost::signals2::connect_position pos = boost::signals2::at_back)
   {
-    return signal_.connect(slot_function);
+    return signal_.connect(slot_function, pos);
   }
 
   /** The current event is not the same as the one we want to connect the function.
@@ -72,9 +73,10 @@ public:
   typename boost::disable_if<
       boost::is_same<Event, event_type>
     , boost::signals2::connection
-  >::type on_event(boost::function<typename event_slot<Event>::type> slot_function)
+  >::type on_event(boost::function<typename event_slot<Event>::type> slot_function,
+    boost::signals2::connect_position pos = boost::signals2::at_back)
   {
-    return events_tail_.template on_event<Event>(slot_function);
+    return events_tail_.template on_event<Event>(slot_function, pos);
   }
 
 /** Boilerplate macros that help to select the nth arguments of the function slot and 

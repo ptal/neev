@@ -26,9 +26,10 @@ public:
   {}
 
   template <class Event, class F>
-  boost::signals2::connection on_event(F f)
+  boost::signals2::connection on_event(F f,
+    boost::signals2::connect_position pos = boost::signals2::at_back)
   {
-    return events_.on_event<Event>(f);
+    return events_.on_event<Event>(f, pos);
   }
 private:
   Events &events_;
