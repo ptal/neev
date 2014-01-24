@@ -1,3 +1,3 @@
 [submodule "Boost.Endian"]
 	path = Boost.Endian
-	url = https://github.com/Beman/endian.git
+	url = https://github.com/ptal/endian
