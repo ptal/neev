@@ -34,7 +34,7 @@ public:
   fixed_mutable_buffer(fixed_mutable_buffer&& buf)
   : base_type(std::move(buf))
   , size_(std::move(buf.size_))
-  , on_size_read_(std::move(on_size_read_))
+  , on_size_read_(std::move(buf.on_size_read_))
   {}
 
   void init(events_subscriber_view<transfer_events> events)
