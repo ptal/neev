@@ -1,24 +1,31 @@
 // Distributed under the Boost Software License, Version 1.0. (See
 // accompanying file LICENSE.txt
 // 
-// (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
+// (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/client/client.hpp>
-#include <neev/fixed_mutable_buffer.hpp>
+#include <neev/archive_mutable_buffer.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
 
-void print_date(const std::string& date)
+#include "position.hpp"
+
+std::ostream & operator<<(std::ostream &os, const position &pos)
 {
-  std::cout << date << std::endl;
+    return os << '(' << pos.x << ',' << pos.y << ',' << pos.z << ')';
 }
 
-void receive_date(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void print_pos(const position& pos)
+{
+  std::cout << pos << std::endl;
+}
+
+void receive_pos(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   using namespace neev;
-  auto receiver = make_fixed8_receiver<no_timer>(socket);
+  auto receiver = make_archive8_receiver<position, no_timer>(socket);
   receiver->on_event<transfer_complete>(
-    boost::bind(print_date, boost::cref(receiver->data())));
+    boost::bind(print_pos, boost::cref(receiver->data())));
   std::cout << "waiting for server...\n";
   receiver->async_transfer();
 }
@@ -28,7 +35,7 @@ int main()
   static const std::string PORT = "12222";
   boost::asio::io_service io_service;
   neev::client client(io_service);
-  client.on_event<neev::connection_success>(receive_date);
+  client.on_event<neev::connection_success>(receive_pos);
   client.on_event<neev::connection_failure>(
     [&](const boost::system::error_code& code){std::cout << code << std::endl;});
   client.async_connect("localhost", PORT);
