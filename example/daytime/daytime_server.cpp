@@ -32,7 +32,7 @@ int main()
   server.on_event<on_new_client>(new_client);
   server.on_event<start_failure>([](){std::cout << "failure..." << std::endl;});
   server.start(PORT);
-  std::cout << "listing...\n";
+  std::cout << "listening...\n";
   server.run();
   return 0;
 }
