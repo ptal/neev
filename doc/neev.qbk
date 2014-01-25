@@ -12,11 +12,18 @@
 
 [section:neev Neev]
 
-This is an event-driven library on top of Boost.Asio.
+This is an event-driven library on top of Boost.Asio. Our goal is to create an efficient abstraction and being able to create a client/server in few line of code.
+
+[section:neev Buffer provider concept]
+
+An abstraction of the buffers is provided
 
 [section:acks Acknowledgements]
 
-The author thanks the Battle for Wesnoth organization in which this project started.
+The author thanks:
+
+* The Battle for Wesnoth organization where this project started (in the context of the Google Summer of Code 2013).
+* Mark De Wever for its mentorship during the Google Summer of Code.
 
 [endsect] [/section:acks Acknowledgements]
 

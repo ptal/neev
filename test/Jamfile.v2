@@ -1,0 +1,48 @@
+# Distributed under the Boost Software License, Version 1.0. (See
+# accompanying file LICENSE.txt
+#
+# (C) Copyright 2003-2013 Christopher M. Kohlhoff (chris at kohlhoff dot com)
+# (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
+import os ;
+import feature ;
+import testing ;
+
+if [ os.name ] = SOLARIS
+{
+  lib socket ;
+  lib nsl ;
+}
+else if [ os.name ] = NT
+{
+  lib ws2_32 ;
+  lib mswsock ;
+}
+else if [ os.name ] = HPUX
+{
+  lib ipv6 ;
+}
+else if [ os.name ] = QNXNTO
+{
+  lib socket ;
+}
+
+use-project neev : ../build ;
+
+project neev/test
+  : requirements
+    <include>../include
+    <include>../Boost.Endian/include
+    <library>../build//neev
+
+    <toolset>gcc:<cxxflags>-std=c++11
+  ;
+
+lib boost_system ;
+lib boost_thread ;
+lib boost_serialization ;
+lib pthread ;
+
+test-suite "neev" :
+  [ run neev_test.cpp boost_system boost_thread pthread ]
+  ;
