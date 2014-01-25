@@ -23,7 +23,7 @@ void print_pos(const position& pos)
 void receive_pos(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   using namespace neev;
-  auto receiver = make_archive8_receiver<position, no_timer>(socket);
+  auto receiver = make_archive16_receiver<position, no_timer>(socket);
   receiver->on_event<transfer_complete>(
     boost::bind(print_pos, boost::cref(receiver->data())));
   std::cout << "waiting for server...\n";

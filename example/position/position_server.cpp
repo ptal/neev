@@ -21,7 +21,7 @@ position make_position()
 void new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   std::cout << "new client...\n";
-  auto sender = neev::make_archive8_sender<no_timer>(socket, make_position());
+  auto sender = neev::make_archive16_sender<no_timer>(socket, make_position());
   sender->on_event<neev::transfer_complete>([](){std::cout << "data sent!" << std::endl;});
   sender->async_transfer();
 }
