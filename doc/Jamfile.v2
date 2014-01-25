@@ -134,15 +134,11 @@ boostbook standalone
   <xsl:param>table.footnote.number.format=1 # Identifies the format used for footnote numbers in tables.
   <xsl:param>footnote.number.format=1 # Identifies the format used for text footnote numbers.
 
-  # Default to not include a navbar.
-  #<xsl:param>nav.layout=none # No navigation bar (home, prev, next).
-  # defining creates a runtime error: Global parameter nav.layout already defined
-  <xsl:param>nav.layout=horizontal # to get a horizontal navigation bar (you probably DO want this).
-
   # <xsl:param>boost.image=Boost # options are: none (no logo), Boost (for boost.png), or your own logo like proposed_for_boost.png
   # <xsl:param>boost.image.src=images/proposed_for_boost.png #
   # <xsl:param>boost.image.w=180 # Width of logo in pixels.
   # <xsl:param>boost.image.h=90 # Height of logo in pixels.
+  <xsl:param>nav.layout=none
 
   # HTML options:
   # ------------
