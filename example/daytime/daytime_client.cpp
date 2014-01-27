@@ -16,7 +16,7 @@ void print_date(const std::string& date)
 void receive_date(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   using namespace neev;
-  auto receiver = make_fixed8_receiver<no_timer>(socket);
+  auto receiver = make_fixed16_receiver<no_timer>(socket);
   receiver->on_event<transfer_complete>(
     boost::bind(print_date, boost::cref(receiver->data())));
   std::cout << "waiting for server...\n";
