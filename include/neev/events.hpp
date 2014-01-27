@@ -92,7 +92,7 @@ private:
 
 #define EVENT_LIMIT_ARG_IMPL BOOST_PP_INC(EVENT_LIMIT_ARG)
 
-#include <neev/detail/events_set_impl.hpp>
+#include <neev/detail/event_type_selector.hpp>
 
 namespace neev{
 
@@ -125,7 +125,13 @@ template <class Event0,
   BOOST_PP_REPEAT(BOOST_PP_SUB(EVENT_LIMIT_ARG_IMPL,1), MAKE_EMPTY_EVENT_TEMPLATE_LIST, ~)
 >
 class events
-: public detail::events_set_impl<boost::mpl::set<Event0> >
+{};
+
+template <class Event0>
+class events<Event0,
+ BOOST_PP_REPEAT(BOOST_PP_SUB(EVENT_LIMIT_ARG_IMPL,1), MAKE_EMPTY_EVENT_CLASS_LIST, ~)
+>
+: public detail::event_type_selector<Event0>
 {};
 
 #define MAKE_EVENT_CLASS_DEF(z, n, unused)                                          \
