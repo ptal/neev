@@ -17,10 +17,21 @@ project neev/example
 lib boost_system ;
 lib boost_thread ;
 lib boost_serialization ;
-lib pthread ;
+lib boost_random ;
 
-exe daytime_server : daytime/daytime_server.cpp boost_system pthread boost_thread ;
-exe daytime_client : daytime/daytime_client.cpp boost_system pthread boost_thread ;
+exe daytime_server : daytime/daytime_server.cpp boost_system boost_thread ;
+exe daytime_client : daytime/daytime_client.cpp boost_system boost_thread ;
 
-exe position_server : position/position_server.cpp boost_system pthread boost_thread boost_serialization ;
-exe position_client : position/position_client.cpp boost_system pthread boost_thread boost_serialization ;
+exe position_server : position/position_server.cpp boost_system boost_thread boost_serialization boost_random ;
+exe position_client : position/position_client.cpp boost_system boost_thread boost_serialization ;
+
+# lib sfml-graphics ;
+# lib sfml-window ;
+# lib sfml-system ;
+
+# lib boost_random ;
+
+
+# alias mazegen : : : : <include>maze/maze-bewley/include ;
+
+# exe mazegui : maze/gui.cpp boost_system boost_thread boost_serialization boost_random sfml-graphics sfml-window sfml-system mazegen ;

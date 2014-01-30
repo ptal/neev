@@ -3,7 +3,7 @@
 // 
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
-#include <neev/server/basic_server.hpp>
+#include <neev/server/server_mt.hpp>
 #include <neev/fixed_const_buffer.hpp>
 #include <ctime>
 #include <iostream>
@@ -28,7 +28,7 @@ void new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 int main()
 {
   static const std::string PORT = "12222";
-  basic_server server;
+  server_mt server(4);
   server.on_event<on_new_client>(new_client);
   server.on_event<start_failure>([](){std::cout << "failure..." << std::endl;});
   server.start(PORT);

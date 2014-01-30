@@ -3,18 +3,18 @@
 // 
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
+#include "position.hpp"
 #include <neev/server/basic_server.hpp>
 #include <neev/archive_const_buffer.hpp>
+#include <boost/random.hpp>
 #include <iostream>
-#include <random>
-#include "position.hpp"
 
 using namespace neev;
 
 position make_position()
 {
-  std::random_device rd;
-  std::uniform_int_distribution<std::int32_t> dist(0,5000);
+  boost::random::mt19937 rd;
+  boost::random::uniform_int_distribution<std::int32_t> dist(1,5000);
   return position(dist(rd), dist(rd), dist(rd));
 }
 
