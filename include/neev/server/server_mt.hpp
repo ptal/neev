@@ -9,7 +9,7 @@
 #ifndef NEEV_MULTI_THREADED_SERVER_HPP
 #define NEEV_MULTI_THREADED_SERVER_HPP
 
-#include <neev/basic_server.hpp>
+#include <neev/server/basic_server.hpp>
 
 namespace neev{
 
