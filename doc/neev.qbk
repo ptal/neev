@@ -14,9 +14,128 @@
 
 This is an event-driven library on top of Boost.Asio. Our goal is to create an efficient abstraction and being able to create a client/server in few line of code.
 
+[section:gettingstarted Getting started]
+
+[h1 Installation]
+
+[caution This tutorial is currently only available for Linux.]
+
+[h3 Boost installation]
+
+Retrieve the latest version on the [@http://www.boost.org boost website] and download it. Full installation instructions are available on the website but here a summary:
+
+[h4 Installing Boost]
+
+``
+cd boost_1_XX_0/
+./bootstrap.sh
+sudo ./b2 install
+``
+
+That's all! The files are installed inside /usr/local/lib and /usr/local/include/boost
+
+[h4 Installing Bjam]
+
+You need Bjam to build the neev library.
+
+``
+sudo cp -r boost_1_XX_0/ /usr/local/
+cd /usr/local/boost_1_XX_0/tools/build/v2/
+sudo ./boostrap.sh
+sudo mkdir /usr/local/boostbuild/
+sudo ./b2 install --prefix=/usr/local/boostbuild/
+echo "export PATH=$PATH:/usr/local/boostbuild/bin" >> ~/.bashrc
+``
+
+Now you have the program `b2` in your path and you can build Neev, however a last step is required. `b2` will look in your home directory for a `user-config.jam`, let's add it!
+
+``
+cp /usr/local/boost_1_XX_0/tools/build/v2/user-config.jam ~/user-config.jam
+``
+
+Open this copied file and add:
+
+``
+using gcc;
+# Only relevant for building the documentation.
+using xsltproc : /usr/bin/xsltproc ;
+using boostbook
+  : /usr/local/boost_1_55_0/tools/boostbook/docbook-xsl-1.75.2
+  : /usr/local/boost_1_55_0/tools/boostbook/docbook-dtd-4.2
+   ;
+
+using doxygen : /usr/bin/doxygen ;
+using fop : /usr/local/boost_1_55_0/tools/boostbook/fop-0.94/fop : : /usr/bin/java ;
+``
+
+[h3 Neev installation]
+
+[warning This installation is half done by hand but will be improved in later version.]
+
+[h4 Use it without installation]
+
+``
+git clone https://github.com/ptal/neev
+cd neev/
+b2 release
+``
+
+When you link it with your program, be sure to add the following option:
+
+``
+g++ program.cpp -Lpath/to/neev/build/bin/gcc-XXX/release/ -lneev -Ipath/to/neev/include/ -Ipath/to/neev/Boost.Endian/include/ -lboost_system -lboost_thread -lboost_serialization -std=c++11
+``
+
+[h4 With installation]
+
+``
+git clone https://github.com/ptal/neev
+cd neev/
+sudo b2 install
+sudo cp -r Boost.endian/include/boost/endian /usr/local/include/boost/
+sudo cp -r neev/include/neev /usr/local/include/
+``
+
+The `b2 install` just put `libneev.so` inside `/usr/local/lib/` so you can remove it whenever you want.
+
+You can test the examples:
+
+``
+cd neev/example
+b2
+./bin/gcc-XXX/debug/position_server &
+./bin/gcc-XXX/debug/position_client
+fg
+``
+
+`fg` put `position_server` as a foreground task, so you can stop it with ctrl-c.
+
+If you want to use Neev in your project, just include the files as with any others library: `#include <neev/server/basic_server.hpp>` and do not forget to link it, for example with g++:
+
+``
+g++ program.cpp -lneev -lboost_system -lboost_thread -lboost_serialization -std=c++11
+``
+
+Note that `-lboost_serialization` is not required if you are not using the `make_archive*` functions.
+
+[h1 Crash course]
+
+[endsect] [/section:gettingstarted Getting started]
+
+
 [section:neev Buffer provider concept]
 
 An abstraction of the buffers is provided
+
+[endsect] [/section:neev Buffer provider concept]
+
+[section:events Events]
+
+[h3 SFML events binding]
+
+Coming soon.
+
+[endsect] [/section:events Events]
 
 [section:acks Acknowledgements]
 
