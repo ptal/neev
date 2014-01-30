@@ -4,11 +4,12 @@
 # (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
 project neev
-    : source-location ../src
+  : source-location ../src
 ;
 
 SOURCES = 
   basic_server
+  server_mt
 ;
 
 lib neev
