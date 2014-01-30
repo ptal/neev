@@ -21,9 +21,9 @@ namespace neev{
 struct endpoint_failure{};
 struct start_success{};
 struct start_failure{};
-struct on_run_exception{};
-struct on_run_unknown_exception{};
-struct on_new_client{};
+struct run_exception{};
+struct run_unknown_exception{};
+struct new_client{};
 
 template <>
 struct event_slot<endpoint_failure>
@@ -52,7 +52,7 @@ struct event_slot<start_failure>
 };
 
 template <>
-struct event_slot<on_run_exception>
+struct event_slot<run_exception>
 {
   /** Notify that an exception has occur while running the main loop.
   */
@@ -60,7 +60,7 @@ struct event_slot<on_run_exception>
 };
 
 template <>
-struct event_slot<on_run_unknown_exception>
+struct event_slot<run_unknown_exception>
 {
   /** Notify that an unknown exception has occur while running the main loop.
   * This event is called in a catch(...) statement.
@@ -69,7 +69,7 @@ struct event_slot<on_run_unknown_exception>
 };
 
 template <>
-struct event_slot<on_new_client>
+struct event_slot<new_client>
 {
   /** Notify that a new client has been accepted.
   */
@@ -77,12 +77,12 @@ struct event_slot<on_new_client>
 };
 
 struct server_events : 
-  events<endpoint_failure
+  events<new_client
        , start_success
+       , run_exception
+       , run_unknown_exception
        , start_failure
-       , on_run_exception
-       , on_run_unknown_exception
-       , on_new_client>
+       , endpoint_failure>
 {};
 
 } // namespace neev

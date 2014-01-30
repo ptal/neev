@@ -4,7 +4,7 @@
 // Initially a part of the Battle for Wesnoth Project http://www.wesnoth.org/
 // It was licensed under the GPL version 2.
 // 
-// (C) Copyright 2013 Pierre Talbot <ptalbot@hyc.io>
+// (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/server/basic_server.hpp>
 #include <boost/make_shared.hpp>
@@ -66,13 +66,19 @@ void basic_server::run()
     }
     catch(std::exception& e)
     {
-      events_.signal_event<on_run_exception>(e);
+      events_.signal_event<run_exception>(e);
     }
     catch(...)
     {
-      events_.signal_event<on_run_unknown_exception>();
+      events_.signal_event<run_unknown_exception>();
     }
   }
+}
+
+void basic_server::launch(const std::string& service)
+{
+  start(service);
+  run();
 }
 
 void basic_server::start_accept()
@@ -87,12 +93,12 @@ void basic_server::handle_accept(const socket_ptr& socket, const boost::system::
 {
   if (!e)
   {
-    events_.signal_event<on_new_client>(socket);
+    events_.signal_event<new_client>(socket);
   }
   start_accept();
 }
 
-void basic_server::handle_stop()
+void basic_server::stop()
 {
   server_on_ = false;
   io_service_.stop();

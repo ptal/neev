@@ -17,7 +17,7 @@ std::string make_daytime_string()
   return ctime(&now);
 }
 
-void new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void on_new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   std::cout << "new client...\n";
   auto sender = make_fixed16_sender<no_timer>(socket, make_daytime_string());
@@ -29,10 +29,10 @@ int main()
 {
   static const std::string PORT = "12222";
   server_mt server(4);
-  server.on_event<on_new_client>(new_client);
+  server.on_event<new_client>(on_new_client);
   server.on_event<start_failure>([](){std::cout << "failure..." << std::endl;});
-  server.start(PORT);
-  std::cout << "listening...\n";
-  server.run();
+  server.on_event<start_success>([](const boost::asio::ip::tcp::endpoint& endpoint){
+    std::cout << "listening on " << endpoint << "..." << std::endl;});
+  server.launch(PORT);
   return 0;
 }
