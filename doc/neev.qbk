@@ -122,7 +122,27 @@ Note that `-lboost_serialization` is not required if you are not using the `make
 
 [h2 Start a server]
 
+``
+int main() {
+  neev::basic_server server;
+  server.on_event<neev::new_client>(on_new_client);
+  server.on_event<neev::start_failure>([](){std::cout << "failure..." << std::endl;});
+  server.on_event<neev::start_success>([](const boost::asio::ip::tcp::endpoint& endpoint){
+    std::cout << "listening on " << endpoint << "..." << std::endl;});
+  server.launch("5000");
+}
+``
 
+You register the callbacks you want to call on some specific events, here the list of all the server events to which you can register:
+
+* start_success: `void handler(const endpoint_type&);`
+* new_client: `void handler(const socket_ptr&);`
+* run_exception: `void handler(const std::exception&);`
+* run_unknown_exception: `void handler();`
+* start_failure: `void handler();`
+* endpoint_failure: `void handler(const std::string&);`
+
+The handler must have the corresponding signature. 
 
 [endsect] [/section:gettingstarted Getting started]
 
