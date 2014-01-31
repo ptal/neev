@@ -25,13 +25,10 @@ exe daytime_client : daytime/daytime_client.cpp boost_system boost_thread ;
 exe position_server : position/position_server.cpp boost_system boost_thread boost_serialization boost_random ;
 exe position_client : position/position_client.cpp boost_system boost_thread boost_serialization ;
 
-# lib sfml-graphics ;
-# lib sfml-window ;
-# lib sfml-system ;
+lib sfml-graphics ;
+lib sfml-window ;
+lib sfml-system ;
 
-# lib boost_random ;
+alias mazegen : : : : <include>maze/maze-bewley/include ;
 
-
-# alias mazegen : : : : <include>maze/maze-bewley/include ;
-
-# exe mazegui : maze/gui.cpp boost_system boost_thread boost_serialization boost_random sfml-graphics sfml-window sfml-system mazegen ;
+exe mazegui : maze/gui.cpp boost_system boost_thread boost_serialization boost_random sfml-graphics sfml-window sfml-system mazegen ;

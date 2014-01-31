@@ -120,6 +120,10 @@ Note that `-lboost_serialization` is not required if you are not using the `make
 
 [h1 Crash course]
 
+[h2 Start a server]
+
+
+
 [endsect] [/section:gettingstarted Getting started]
 
 
