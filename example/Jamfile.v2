@@ -26,6 +26,5 @@ exe daytime_client : daytime/daytime_client.cpp boost_system boost_thread pthrea
 exe position_server : position/position_server.cpp boost_system boost_thread boost_serialization boost_random pthread ;
 exe position_client : position/position_client.cpp boost_system boost_thread boost_serialization pthread ;
 
-lib sfml-graphics ;
-lib sfml-window ;
-lib sfml-system ;
+exe chat_server : chat/chat_server.cpp chat/connection.cpp boost_system boost_thread pthread ;
+exe chat_client : chat/chat_client.cpp chat/connection.cpp boost_system boost_thread pthread ;
