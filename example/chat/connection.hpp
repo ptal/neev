@@ -5,23 +5,20 @@
 #include <boost/asio.hpp>
 #include <neev/fixed_mutable_buffer.hpp>
 #include <neev/timer_policy.hpp>
+#include <neev/transfer_events.hpp>
+#include "connection_events.hpp"
 
 class connection {
     public:
         typedef boost::asio::ip::tcp::socket socket_type;
-        typedef std::function<void(connection&)> close_callback_type;
-        typedef std::function<void(connection&, const std::string&)> receive_callback_type;
 
         //!Creates a connection for sending and receiving strings.
         connection(const boost::shared_ptr<socket_type>&);
 
         void send(std::string);
 
-        //!Called when a message is received.
-        void set_on_receive(receive_callback_type);
-
-        //!Called when a message is received.
-        void set_on_close(close_callback_type);
+        template<class Event, class Callback_Type>
+        void on_event(Callback_Type);
 
         boost::shared_ptr<socket_type> get_socket() const;
 
@@ -31,14 +28,15 @@ class connection {
         void on_receive();
         void on_transfer_failure(const boost::system::error_code&);
 
-        void default_close_callback(connection&);
-        void default_receive_callback(connection&, const std::string&);
-
-        close_callback_type on_close_callback_;
-        receive_callback_type on_receive_callback_;
+        neev::connection_events events_;
 
         boost::shared_ptr<socket_type> socket_;
         neev::fixed_receiver_ptr<neev::no_timer, std::uint32_t> receiver_;
 };
+
+template <class Event, class Callback_Type>
+void connection::on_event(Callback_Type callback) {
+    events_.on_event<Event>(callback, boost::signals2::at_back);
+}
 
 #endif

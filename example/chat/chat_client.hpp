@@ -9,10 +9,10 @@
 class chat_client {
     public:
         chat_client() : 
-        io_service_(), 
-        client_(io_service_), 
         running_(false),
-        input_thread_()
+        input_thread_(),
+        io_service_(), 
+        client_(io_service_)
         { };
 
         ~chat_client();
