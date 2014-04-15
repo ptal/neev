@@ -17,6 +17,10 @@ void chat_client::connect( const std::string& host, const std::string& port ) {
 void chat_client::connection_success( const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket ) {
     assert(socket);
     connection_ = boost::make_shared<connection>(socket);
+    connection_->on_event<neev::conn_on_receive>(
+        [](const connection& conn, const std::string& message) { 
+            std::cout << "Received:" << message << std::endl; 
+        });
     std::cout << "Client: Connection success!" << std::endl;
 }
 
@@ -46,7 +50,7 @@ chat_client::~chat_client() {
 void chat_client::input_listen_loop() {
     std::string line_read;
     std::getline( std::cin, line_read );
-    while( running_ && line_read != "/quit") {
+    while( input_thread_running_ && line_read != "/quit") {
         this->message( line_read );
         std::getline( std::cin, line_read );
     }
@@ -54,13 +58,13 @@ void chat_client::input_listen_loop() {
 }
 
 void chat_client::start_input_thread() {
-    assert(!running_);
+    assert(!input_thread_running_);
     input_thread_ = boost::make_shared<std::thread>(std::bind(&chat_client::input_listen_loop, this));
-    running_ = true;
+    input_thread_running_ = true;
 }
 
 void chat_client::stop_input_thread_and_join() {
-    running_ = false;
+    input_thread_running_ = false;
     if(input_thread_->joinable()) {
         input_thread_->join();
     }

@@ -36,7 +36,7 @@ class chat_client {
 
         void connection_success(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 
-        bool running_;
+        bool input_thread_running_;
         boost::shared_ptr<std::thread> input_thread_;
 
         boost::shared_ptr<connection> connection_;
