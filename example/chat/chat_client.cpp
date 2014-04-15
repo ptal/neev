@@ -9,18 +9,20 @@ void chat_client::connect( const std::string& host, const std::string& port ) {
     client_.on_event<neev::connection_success>(boost::bind(&chat_client::connection_success, this, _1));
     client_.on_event<neev::connection_failure>(
         [](const boost::system::error_code& code) {
-            std::cerr << "Error while connecting to " << code << std::endl; 
+            std::cerr << "Error while connecting. Code: " << code << std::endl; 
         });
     client_.async_connect( host, port );
+}
+
+void chat_client::message_received(const connection& conn, const std::string& message) {
+    std::cout << "Message Received: " << message << std::endl;
 }
 
 void chat_client::connection_success( const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket ) {
     assert(socket);
     connection_ = boost::make_shared<connection>(socket);
-    connection_->on_event<neev::conn_on_receive>(
-        [](const connection& conn, const std::string& message) { 
-            std::cout << "Received:" << message << std::endl; 
-        });
+    namespace place = std::placeholders;
+    connection_->on_event<neev::conn_on_receive>(std::bind(&chat_client::message_received, this, place::_1, place::_2));
     std::cout << "Client: Connection success!" << std::endl;
 }
 
@@ -43,7 +45,8 @@ void chat_client::stop() {
 }
 
 chat_client::~chat_client() {
-    stop_input_thread_and_join();
+    //Prevent possible leaking of thread resources.
+    stop_input_thread_and_join(); 
 }
 
 //Run in its own thread.
@@ -51,7 +54,7 @@ void chat_client::input_listen_loop() {
     std::string line_read;
     std::getline( std::cin, line_read );
     while( input_thread_running_ && line_read != "/quit") {
-        this->message( line_read );
+        this->message( line_read ); //In this order so /quit doesn't get sent to the server.
         std::getline( std::cin, line_read );
     }
     this->stop();

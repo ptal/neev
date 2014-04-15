@@ -9,7 +9,7 @@
 class chat_client {
     public:
         chat_client() : 
-        running_(false),
+        input_thread_running_(false),
         input_thread_(),
         io_service_(), 
         client_(io_service_)
@@ -34,6 +34,7 @@ class chat_client {
         void start_input_thread();
         void stop_input_thread_and_join();
 
+        void message_received(const connection&, const std::string&);
         void connection_success(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket);
 
         bool input_thread_running_;
