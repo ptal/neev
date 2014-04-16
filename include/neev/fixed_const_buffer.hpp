@@ -42,7 +42,7 @@ public:
 
   std::size_t bytes_to_transfer() const
   {
-    return sizeof(size_type) + base().bytes_to_transfer();
+    return base().bytes_to_transfer();
   }
 
   bool is_complete(std::size_t bytes_transferred) const
