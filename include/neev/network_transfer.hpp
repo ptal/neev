@@ -63,9 +63,9 @@ public:
   */
   void async_transfer()
   {
+    init_provider();
     if(!this->is_done())
     {
-      init_provider();
       async_transfer_impl();
     }
   }
@@ -75,10 +75,10 @@ public:
     static_assert(!boost::is_same<TimerPolicy, no_timer>::value,
       "async_transfer(const boost::posix_time::time_duration& timeout) is not available"
       " because you the timer policy of network_transfer is set to no_timer.");
+    init_provider();
     if(!this->is_done())
     {
       this->launch(timeout);
-      init_provider();
       async_transfer_impl();
     }
   }
