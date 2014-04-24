@@ -18,17 +18,13 @@ lib boost_system ;
 lib boost_thread ;
 lib boost_serialization ;
 lib boost_random ;
+lib pthread ;
 
-exe daytime_server : daytime/daytime_server.cpp boost_system boost_thread ;
-exe daytime_client : daytime/daytime_client.cpp boost_system boost_thread ;
+exe daytime_server : daytime/daytime_server.cpp boost_system boost_thread pthread ;
+exe daytime_client : daytime/daytime_client.cpp boost_system boost_thread pthread ;
 
-exe position_server : position/position_server.cpp boost_system boost_thread boost_serialization boost_random ;
-exe position_client : position/position_client.cpp boost_system boost_thread boost_serialization ;
+exe position_server : position/position_server.cpp boost_system boost_thread boost_serialization boost_random pthread ;
+exe position_client : position/position_client.cpp boost_system boost_thread boost_serialization pthread ;
 
-lib sfml-graphics ;
-lib sfml-window ;
-lib sfml-system ;
-
-alias mazegen : : : : <include>maze/maze-bewley/include ;
-
-exe mazegui : maze/gui.cpp boost_system boost_thread boost_serialization boost_random sfml-graphics sfml-window sfml-system mazegen ;
+exe chat_server : chat/chat_server.cpp chat/connection.cpp boost_system boost_thread pthread ;
+exe chat_client : chat/chat_client.cpp chat/connection.cpp boost_system boost_thread pthread ;
