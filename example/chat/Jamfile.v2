@@ -1,0 +1,20 @@
+# Distributed under the Boost Software License, Version 1.0. (See 
+# accompanying file LICENSE.txt)
+# 
+# (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
+project neev/example/chat
+    : requirements
+      <toolset>gcc:<cxxflags>-std=c++11
+      <toolset>clang:<cxxflags>-std=c++11
+      <include>../../include/
+      <include>../../Boost.Endian/include
+      <library>../../build//neev
+    ;
+
+lib boost_system ;
+lib boost_thread ;
+lib pthread ;
+
+exe chat_server : chat_server.cpp connection.cpp boost_system boost_thread pthread ;
+exe chat_client : chat_client.cpp connection.cpp boost_system boost_thread pthread ;
