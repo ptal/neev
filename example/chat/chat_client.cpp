@@ -6,15 +6,14 @@
 
 namespace ph = std::placeholders;
 
-void chat_client::connect( const std::string& host, const std::string& port )
+void chat_client::connect(const std::string& host, const std::string& port)
 {
   client_.on_event<neev::connection_success>(std::bind(&chat_client::connection_success, this, ph::_1));
   client_.on_event<neev::connection_failure>(
-    [](const boost::system::error_code& code)
-    {
+    [](const boost::system::error_code& code){
       std::cerr << "Error while connecting. Code: " << code << std::endl; 
     });
-  client_.async_connect( host, port );
+  client_.async_connect(host, port);
 }
 
 void chat_client::message_received(const connection& conn, const std::string& message)
@@ -22,22 +21,20 @@ void chat_client::message_received(const connection& conn, const std::string& me
   std::cout << "Message Received: " << message << std::endl;
 }
 
-void chat_client::connection_success( const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket )
+void chat_client::connection_success(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   assert(socket);
   connection_ = boost::make_shared<connection>(socket);
-  connection_->on_event<neev::conn_on_receive>(std::bind(&chat_client::message_received, this, ph::_1, ph::_2));
+  connection_->on_event<conn_on_receive>(std::bind(&chat_client::message_received, this, ph::_1, ph::_2));
   std::cout << "Client: Connection success!" << std::endl;
 }
 
-void chat_client::message( const std::string& message )
+void chat_client::message(const std::string& message)
 {
-  if(!connection_)
-  {
+  if(connection_)
+    connection_->send(message);
+  else
     std::cout << "Unable to send message, no connection." << std::endl;
-    return;
-  }
-  connection_->send(message);
 }
 
 void chat_client::run()
@@ -62,11 +59,11 @@ chat_client::~chat_client()
 void chat_client::input_listen_loop()
 {
   std::string line_read;
-  std::getline( std::cin, line_read );
-  while( input_thread_running_ && line_read != "/quit")
+  std::getline(std::cin, line_read);
+  while(input_thread_running_ && line_read != "/quit")
   {
-    this->message( line_read ); //In this order so /quit doesn't get sent to the server.
-    std::getline( std::cin, line_read );
+    this->message(line_read); //In this order so /quit doesn't get sent to the server.
+    std::getline(std::cin, line_read);
   }
   this->stop();
 }
@@ -93,6 +90,6 @@ int main()
   std::string port = "8000";
   chat_client client;
   std::cout << "Client: Connecting!" << std::endl;
-  client.connect( host, port );
+  client.connect(host, port);
   client.run();
 }

@@ -12,7 +12,7 @@ connection::connection(const boost::shared_ptr<socket_type>& socket) : socket_(s
 }
 
 //data cannot be const ref as make_fixed32_sender isn't const.
-void connection::send( std::string data )
+void connection::send(std::string data)
 {
   std::cout << "Connection: Sending: " << data << std::endl;
   auto sender = neev::make_fixed32_sender<neev::no_timer>(socket_, std::move(data));
@@ -22,7 +22,8 @@ void connection::send( std::string data )
 }
 
 
-boost::shared_ptr<connection::socket_type> connection::get_socket() const {
+boost::shared_ptr<connection::socket_type> connection::get_socket() const
+{
   return socket_;
 }
 

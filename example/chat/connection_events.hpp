@@ -6,22 +6,27 @@
 
 class connection;
 
-namespace neev {
-
 struct conn_on_receive {};
 struct conn_on_close {};
 
+namespace neev {
+
 template <>
-struct event_slot<conn_on_receive> {
-  typedef void type(connection&, const std::string&);
+struct event_slot<conn_on_receive>
+{
+  using type = void(connection&, const std::string&);
 };
 
 template <>
-struct event_slot<conn_on_close> {
-  typedef void type(connection&);
+struct event_slot<conn_on_close>
+{
+  using type = void(connection&);
 };
 
-struct connection_events : events<conn_on_receive, conn_on_close>
+struct connection_events
+: events<
+    conn_on_receive, 
+    conn_on_close>
 {};
 
 }
