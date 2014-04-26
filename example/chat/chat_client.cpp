@@ -3,11 +3,12 @@
 #include <neev/timer_policy.hpp>
 #include <thread>
 #include "chat_client.hpp"
-#include <boost/bind.hpp>
+
+namespace ph = std::placeholders;
 
 void chat_client::connect( const std::string& host, const std::string& port )
 {
-  client_.on_event<neev::connection_success>(boost::bind(&chat_client::connection_success, this, _1));
+  client_.on_event<neev::connection_success>(std::bind(&chat_client::connection_success, this, ph::_1));
   client_.on_event<neev::connection_failure>(
     [](const boost::system::error_code& code)
     {
@@ -25,8 +26,7 @@ void chat_client::connection_success( const boost::shared_ptr<boost::asio::ip::t
 {
   assert(socket);
   connection_ = boost::make_shared<connection>(socket);
-  namespace place = std::placeholders;
-  connection_->on_event<neev::conn_on_receive>(std::bind(&chat_client::message_received, this, place::_1, place::_2));
+  connection_->on_event<neev::conn_on_receive>(std::bind(&chat_client::message_received, this, ph::_1, ph::_2));
   std::cout << "Client: Connection success!" << std::endl;
 }
 

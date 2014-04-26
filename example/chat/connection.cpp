@@ -1,7 +1,9 @@
-#include <neev/fixed_const_buffer.hpp>
 #include "connection.hpp"
+#include <neev/fixed_const_buffer.hpp>
+#include <functional>
 
 using namespace neev;
+namespace ph = std::placeholders;
 
 connection::connection(const boost::shared_ptr<socket_type>& socket) : socket_(socket)
 {
@@ -15,7 +17,7 @@ void connection::send( std::string data )
   std::cout << "Connection: Sending: " << data << std::endl;
   auto sender = neev::make_fixed32_sender<neev::no_timer>(socket_, std::move(data));
   sender->on_event<transfer_complete>([](){std::cout << "Sending: Transfer complete" << std::endl;});
-  sender->on_event<neev::transfer_error>(std::bind(&connection::on_transfer_failure, this, std::placeholders::_1));
+  sender->on_event<neev::transfer_error>(std::bind(&connection::on_transfer_failure, this, ph::_1));
   sender->async_transfer();
 }
 
@@ -28,7 +30,7 @@ void connection::new_receiver()
 {
   receiver_ = make_fixed32_receiver<no_timer>(socket_);
   receiver_->on_event<neev::transfer_complete>(std::bind(&connection::on_receive, this));
-  receiver_->on_event<neev::transfer_error>(std::bind(&connection::on_transfer_failure, this, std::placeholders::_1));
+  receiver_->on_event<neev::transfer_error>(std::bind(&connection::on_transfer_failure, this, ph::_1));
 }
 
 void connection::on_receive()
