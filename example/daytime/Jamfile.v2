@@ -3,18 +3,7 @@
 # 
 # (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
-project neev/example/daytime
-    : requirements
-      <toolset>gcc:<cxxflags>-std=c++11
-      <toolset>clang:<cxxflags>-std=c++11
-      <include>../../include/
-      <include>../../Boost.Endian/include
-      <library>../../build//neev
-    ;
-
-lib boost_system ;
-lib boost_thread ;
-lib pthread ;
+include ../lib_dependencies.v2 ;
 
 exe daytime_server : daytime_server.cpp boost_system boost_thread pthread ;
 exe daytime_client : daytime_client.cpp boost_system boost_thread pthread ;

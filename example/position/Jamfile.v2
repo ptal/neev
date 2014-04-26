@@ -3,20 +3,9 @@
 # 
 # (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
-project neev/example/position
-    : requirements
-      <toolset>gcc:<cxxflags>-std=c++11
-      <toolset>clang:<cxxflags>-std=c++11
-      <include>../../include/
-      <include>../../Boost.Endian/include
-      <library>../../build//neev
-    ;
+include ../lib_dependencies.v2 ;
 
-lib boost_system ;
-lib boost_thread ;
-lib boost_serialization ;
 lib boost_random ;
-lib pthread ;
 
 exe position_server : position_server.cpp boost_system boost_thread boost_serialization boost_random pthread ;
 exe position_client : position_client.cpp boost_system boost_thread boost_serialization pthread ;
