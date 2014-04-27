@@ -4,8 +4,6 @@
 #include <thread>
 #include "chat_client.hpp"
 
-namespace ph = std::placeholders;
-
 void chat_client::connect(const std::string& host, const std::string& port)
 {
   client_.on_event<neev::connection_success>([this](const socket_ptr& s){
@@ -17,7 +15,7 @@ void chat_client::connect(const std::string& host, const std::string& port)
   client_.async_connect(host, port);
 }
 
-void chat_client::message_received(const connection& conn, const std::string& message)
+void chat_client::message_received(const connection&, const std::string& message)
 {
   std::cout << "Message Received: " << message << std::endl;
 }
@@ -26,7 +24,9 @@ void chat_client::connection_success(const socket_ptr& socket)
 {
   assert(socket);
   connection_ = boost::make_shared<connection>(socket);
-  connection_->on_event<msg_received>(std::bind(&chat_client::message_received, this, ph::_1, ph::_2));
+  connection_->on_event<msg_received>([this](const connection& c, const std::string& msg){
+    message_received(c, msg);
+  });
   std::cout << "Client: Connection success!" << std::endl;
 }
 

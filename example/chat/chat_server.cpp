@@ -8,8 +8,6 @@
 #include <boost/smart_ptr.hpp>
 #include <boost/make_shared.hpp>
 
-namespace ph = std::placeholders;
-
 void chat_server::open_on_port(const std::string& port)
 {
   server_.on_event<neev::new_client>([this](const socket_ptr& s){
