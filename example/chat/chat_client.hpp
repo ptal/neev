@@ -30,12 +30,14 @@ class chat_client {
   void stop();
 
  private:
+  using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
+  
   void input_listen_loop();
   void start_input_thread();
   void stop_input_thread_and_join();
 
   void message_received(const connection&, const std::string&);
-  void connection_success(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket);
+  void connection_success(const socket_ptr& socket);
 
   bool input_thread_running_;
   boost::shared_ptr<std::thread> input_thread_;

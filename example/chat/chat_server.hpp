@@ -21,7 +21,9 @@ class chat_server {
   void close();
 
  private:
-  void on_new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket);
+  using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
+
+  void on_new_client(const socket_ptr& socket);
   void on_message_receive(connection&, const std::string&);
   void on_connection_close(connection&);
 

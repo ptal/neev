@@ -37,7 +37,7 @@ class connection {
 template <class Event, class Callback_Type>
 void connection::on_event(Callback_Type callback)
 {
-  events_.on_event<Event>(callback, boost::signals2::at_back);
+  events_.on_event<Event>(callback);
 }
 
 #endif

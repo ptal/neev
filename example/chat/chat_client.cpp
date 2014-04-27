@@ -8,11 +8,12 @@ namespace ph = std::placeholders;
 
 void chat_client::connect(const std::string& host, const std::string& port)
 {
-  client_.on_event<neev::connection_success>(std::bind(&chat_client::connection_success, this, ph::_1));
-  client_.on_event<neev::connection_failure>(
-    [](const boost::system::error_code& code){
-      std::cerr << "Error while connecting. Code: " << code << std::endl; 
-    });
+  client_.on_event<neev::connection_success>([this](const socket_ptr& s){
+    connection_success(s);
+  });
+  client_.on_event<neev::connection_failure>([](const boost::system::error_code& code){
+    std::cerr << "Error while connecting. Code: " << code << std::endl; 
+  });
   client_.async_connect(host, port);
 }
 
@@ -21,7 +22,7 @@ void chat_client::message_received(const connection& conn, const std::string& me
   std::cout << "Message Received: " << message << std::endl;
 }
 
-void chat_client::connection_success(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void chat_client::connection_success(const socket_ptr& socket)
 {
   assert(socket);
   connection_ = boost::make_shared<connection>(socket);

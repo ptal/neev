@@ -12,8 +12,12 @@ namespace ph = std::placeholders;
 
 void chat_server::open_on_port(const std::string& port)
 {
-  server_.on_event<neev::new_client>(std::bind(&chat_server::on_new_client, this, ph::_1));
-  server_.on_event<neev::start_failure>([](){std::cerr << "Failed to open server" << std::endl;});
+  server_.on_event<neev::new_client>([this](const socket_ptr& s){
+    on_new_client(s);
+  });
+  server_.on_event<neev::start_failure>([](){
+    std::cerr << "Failed to open server" << std::endl;
+  });
   server_.on_event<neev::start_success>(
     [](const boost::asio::ip::tcp::endpoint& endpoint){
       std::cerr << "Server opened at " << endpoint << std::endl;
@@ -26,12 +30,16 @@ void chat_server::close()
   server_.stop();
 }
 
-void chat_server::on_new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void chat_server::on_new_client(const socket_ptr& socket)
 {
   std::cout << "A new client has connected!" << socket << std::endl;
   boost::shared_ptr<connection> conn = boost::make_shared<connection>(socket);
-  conn->on_event<conn_on_close>(std::bind(&chat_server::on_connection_close, this, ph::_1));
-  conn->on_event<conn_on_receive>(std::bind(&chat_server::on_message_receive, this, ph::_1, ph::_2));
+  conn->on_event<conn_on_close>([this](connection& c){
+    on_connection_close(c);
+  });
+  conn->on_event<conn_on_receive>([this](connection& c, const std::string& msg){
+    on_message_receive(c, msg);
+  });
   connections_.push_back(conn);
 }
 
@@ -39,7 +47,7 @@ void chat_server::on_message_receive(connection& conn_from, const std::string& m
 {
   for(auto conn_to : connections_)
   {
-    conn_to->send( message );
+    conn_to->send(message);
   }
 }
 
@@ -59,4 +67,3 @@ int main(int argc, char * argv[])
   server.open_on_port(port);
   return 0;
 }
-

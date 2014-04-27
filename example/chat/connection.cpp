@@ -17,10 +17,11 @@ void connection::send(std::string data)
   std::cout << "Connection: Sending: " << data << std::endl;
   auto sender = neev::make_fixed32_sender<neev::no_timer>(socket_, std::move(data));
   sender->on_event<transfer_complete>([](){std::cout << "Sending: Transfer complete" << std::endl;});
-  sender->on_event<neev::transfer_error>(std::bind(&connection::on_transfer_failure, this, ph::_1));
+  sender->on_event<neev::transfer_error>([this](const boost::system::error_code& e){
+    on_transfer_failure(e);
+  });
   sender->async_transfer();
 }
-
 
 boost::shared_ptr<connection::socket_type> connection::get_socket() const
 {
@@ -30,8 +31,10 @@ boost::shared_ptr<connection::socket_type> connection::get_socket() const
 void connection::new_receiver()
 {
   receiver_ = make_fixed32_receiver<no_timer>(socket_);
-  receiver_->on_event<neev::transfer_complete>(std::bind(&connection::on_receive, this));
-  receiver_->on_event<neev::transfer_error>(std::bind(&connection::on_transfer_failure, this, ph::_1));
+  receiver_->on_event<transfer_complete>([this](){on_receive();});
+  receiver_->on_event<transfer_error>([this](const boost::system::error_code& e){
+    on_transfer_failure(e);
+  });
 }
 
 void connection::on_receive()
