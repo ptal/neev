@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <neev/fixed_mutable_buffer.hpp>
 #include "chat_server.hpp"
-#include "connection_events.hpp"
+#include "chat_events.hpp"
 
 //Using Boost for compatibility with Neev, rather port to c++11.
 #include <boost/smart_ptr.hpp>
@@ -34,10 +34,10 @@ void chat_server::on_new_client(const socket_ptr& socket)
 {
   std::cout << "A new client has connected!" << socket << std::endl;
   boost::shared_ptr<connection> conn = boost::make_shared<connection>(socket);
-  conn->on_event<conn_on_close>([this](connection& c){
+  conn->on_event<client_quit>([this](connection& c){
     on_connection_close(c);
   });
-  conn->on_event<conn_on_receive>([this](connection& c, const std::string& msg){
+  conn->on_event<msg_received>([this](connection& c, const std::string& msg){
     on_message_receive(c, msg);
   });
   connections_.push_back(conn);

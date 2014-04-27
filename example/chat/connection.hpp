@@ -6,21 +6,24 @@
 #include <neev/fixed_mutable_buffer.hpp>
 #include <neev/timer_policy.hpp>
 #include <neev/transfer_events.hpp>
-#include "connection_events.hpp"
+#include "chat_events.hpp"
 
 class connection {
  public:
-  typedef boost::asio::ip::tcp::socket socket_type;
+  using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
 
   //!Creates a connection for sending and receiving strings.
-  connection(const boost::shared_ptr<socket_type>&);
+  connection(const socket_ptr&);
 
   void send(std::string);
 
-  template<class Event, class Callback_Type>
-  void on_event(Callback_Type);
+  template<class Event, class CallbackType>
+  void on_event(CallbackType callback)
+  {
+    events_.on_event<Event>(callback);
+  }
 
-  boost::shared_ptr<socket_type> get_socket() const;
+  socket_ptr get_socket() const;
 
  private:
   void new_receiver();
@@ -28,16 +31,10 @@ class connection {
   void on_receive();
   void on_transfer_failure(const boost::system::error_code&);
 
-  neev::connection_events events_;
+  chat_events events_;
 
-  boost::shared_ptr<socket_type> socket_;
+  socket_ptr socket_;
   neev::fixed_receiver_ptr<neev::no_timer, std::uint32_t> receiver_;
 };
-
-template <class Event, class Callback_Type>
-void connection::on_event(Callback_Type callback)
-{
-  events_.on_event<Event>(callback);
-}
 
 #endif

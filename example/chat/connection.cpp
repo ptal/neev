@@ -1,11 +1,9 @@
 #include "connection.hpp"
 #include <neev/fixed_const_buffer.hpp>
-#include <functional>
 
 using namespace neev;
-namespace ph = std::placeholders;
 
-connection::connection(const boost::shared_ptr<socket_type>& socket) : socket_(socket)
+connection::connection(const socket_ptr& socket) : socket_(socket)
 {
   new_receiver();
   receiver_->async_transfer();
@@ -15,15 +13,17 @@ connection::connection(const boost::shared_ptr<socket_type>& socket) : socket_(s
 void connection::send(std::string data)
 {
   std::cout << "Connection: Sending: " << data << std::endl;
-  auto sender = neev::make_fixed32_sender<neev::no_timer>(socket_, std::move(data));
-  sender->on_event<transfer_complete>([](){std::cout << "Sending: Transfer complete" << std::endl;});
-  sender->on_event<neev::transfer_error>([this](const boost::system::error_code& e){
+  auto sender = make_fixed32_sender<no_timer>(socket_, std::move(data));
+  sender->on_event<transfer_complete>([](){
+    std::cout << "Sending: Transfer complete" << std::endl;
+  });
+  sender->on_event<transfer_error>([this](const boost::system::error_code& e){
     on_transfer_failure(e);
   });
   sender->async_transfer();
 }
 
-boost::shared_ptr<connection::socket_type> connection::get_socket() const
+connection::socket_ptr connection::get_socket() const
 {
   return socket_;
 }
@@ -39,13 +39,13 @@ void connection::new_receiver()
 
 void connection::on_receive()
 {
-  events_.signal_event<conn_on_receive>(*this, receiver_->data());
+  events_.signal_event<msg_received>(*this, receiver_->data());
   new_receiver();
   receiver_->async_transfer();
 }
 
 void connection::on_transfer_failure(const boost::system::error_code&)
 {
-  events_.signal_event<conn_on_close>(*this);
+  events_.signal_event<client_quit>(*this);
 }    
 

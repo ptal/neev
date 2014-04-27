@@ -26,7 +26,7 @@ void chat_client::connection_success(const socket_ptr& socket)
 {
   assert(socket);
   connection_ = boost::make_shared<connection>(socket);
-  connection_->on_event<conn_on_receive>(std::bind(&chat_client::message_received, this, ph::_1, ph::_2));
+  connection_->on_event<msg_received>(std::bind(&chat_client::message_received, this, ph::_1, ph::_2));
   std::cout << "Client: Connection success!" << std::endl;
 }
 
@@ -72,7 +72,7 @@ void chat_client::input_listen_loop()
 void chat_client::start_input_thread()
 {
   assert(!input_thread_running_);
-  input_thread_ = boost::make_shared<std::thread>(std::bind(&chat_client::input_listen_loop, this));
+  input_thread_ = boost::make_shared<std::thread>([this](){input_listen_loop();});
   input_thread_running_ = true;
 }
 
