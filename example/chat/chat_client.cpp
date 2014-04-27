@@ -6,9 +6,20 @@
 
 #include "chat_client.hpp"
 #include <neev/fixed_const_buffer.hpp>
-#include <neev/timer_policy.hpp>
 #include <iostream>
-#include <thread>
+
+chat_client::chat_client()
+: input_thread_running_(false),
+  input_thread_(),
+  io_service_(), 
+  client_(io_service_)
+{};
+
+chat_client::~chat_client()
+{
+  //Prevent possible leaking of thread resources.
+  stop_input_thread_and_join(); 
+}
 
 void chat_client::connect(const std::string& host, const std::string& port)
 {
@@ -54,12 +65,6 @@ void chat_client::run()
 void chat_client::stop()
 {
   io_service_.stop();
-}
-
-chat_client::~chat_client()
-{
-  //Prevent possible leaking of thread resources.
-  stop_input_thread_and_join(); 
 }
 
 //Run in its own thread.

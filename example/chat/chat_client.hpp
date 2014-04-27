@@ -8,20 +8,13 @@
 #define CHAT_CLIENT_HPP
 
 #include "connection.hpp"
-#include <boost/asio.hpp>
 #include <boost/smart_ptr.hpp>
 #include <neev/client/client.hpp>
 #include <thread>
 
 class chat_client {
  public:
-  chat_client() : 
-    input_thread_running_(false),
-    input_thread_(),
-    io_service_(), 
-    client_(io_service_)
-    { };
-
+  chat_client();
   ~chat_client();
 
   //! Connect to a given chat server host.
