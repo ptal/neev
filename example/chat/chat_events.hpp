@@ -12,7 +12,7 @@
 class connection;
 
 struct msg_received {};
-struct client_quit {};
+struct disconnected {};
 
 namespace neev {
 
@@ -23,7 +23,7 @@ struct event_slot<msg_received>
 };
 
 template <>
-struct event_slot<client_quit>
+struct event_slot<disconnected>
 {
   using type = void(connection&);
 };
@@ -33,7 +33,7 @@ struct event_slot<client_quit>
 struct chat_events
 : neev::events<
     msg_received, 
-    client_quit>
+    disconnected>
 {};
 
 #endif

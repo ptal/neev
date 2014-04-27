@@ -46,6 +46,5 @@ void chat_console::write_full_line(const std::string& msg)
 {
   std::lock_guard<std::mutex> lock(console_lock);
   std::cout << "\n";
-  print_time();
   print_message(msg);
 }

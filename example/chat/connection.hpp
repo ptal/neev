@@ -18,8 +18,11 @@ class connection {
 
   //!Creates a connection for sending and receiving strings.
   connection(const socket_ptr&);
+  connection() = default;
 
-  void send(std::string);
+  void bind(const socket_ptr& socket);
+
+  void send(std::string&&);
 
   template<class Event, class CallbackType>
   void on_event(CallbackType callback)
@@ -29,16 +32,19 @@ class connection {
 
   std::string ip_port() const;
 
- private:
-  void new_receiver();
+  void close();
 
-  void on_receive();
+  explicit operator bool() const
+  {
+    return static_cast<bool>(socket_);
+  }
+
+ private:
+  void async_wait_message();
   void on_transfer_failure(const boost::system::error_code&);
 
   chat_events events_;
-
   socket_ptr socket_;
-  neev::fixed_receiver_ptr<neev::no_timer, std::uint32_t> receiver_;
 };
 
 #endif

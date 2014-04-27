@@ -9,14 +9,24 @@
 
 using namespace neev;
 
-connection::connection(const socket_ptr& socket) : socket_(socket)
+connection::connection(const socket_ptr& socket)
 {
-  new_receiver();
-  receiver_->async_transfer();
+  bind(socket);
 }
 
-//data cannot be const ref as make_fixed32_sender isn't const.
-void connection::send(std::string data)
+void connection::bind(const socket_ptr& socket)
+{
+  socket_ = socket;
+  async_wait_message();
+}
+
+void connection::close()
+{
+  socket_->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+  socket_->close();
+}
+
+void connection::send(std::string&& data)
 {
   auto sender = make_fixed32_sender<no_timer>(socket_, std::move(data));
   sender->on_event<transfer_error>([this](const boost::system::error_code& e){
@@ -32,23 +42,19 @@ std::string connection::ip_port() const
   return client_key.str();
 }
 
-void connection::new_receiver()
+void connection::async_wait_message()
 {
-  receiver_ = make_fixed32_receiver<no_timer>(socket_);
-  receiver_->on_event<transfer_complete>([this](){on_receive();});
-  receiver_->on_event<transfer_error>([this](const boost::system::error_code& e){
+  auto receiver = make_fixed32_receiver<no_timer>(socket_);
+  receiver->on_event<transfer_complete>([=](){
+    events_.signal_event<msg_received>(*this, receiver->data());
+  });
+  receiver->on_event<transfer_error>([this](const boost::system::error_code& e){
     on_transfer_failure(e);
   });
-}
-
-void connection::on_receive()
-{
-  events_.signal_event<msg_received>(*this, receiver_->data());
-  new_receiver();
-  receiver_->async_transfer();
+  receiver->async_transfer();
 }
 
 void connection::on_transfer_failure(const boost::system::error_code&)
 {
-  events_.signal_event<client_quit>(*this);
+  events_.signal_event<disconnected>(*this);
 }    

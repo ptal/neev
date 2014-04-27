@@ -40,7 +40,7 @@ void chat_server::on_new_client(const socket_ptr& socket)
   if(users_.find(user_key) == users_.end())
   {
     std::cout << "[" << user_key << "] Connected." << std::endl;
-    user->on_event<client_quit>([this](connection& c){
+    user->on_event<disconnected>([this](connection& c){
       on_connection_close(c);
     });
     user->on_event<msg_received>([this](connection& c, const std::string& msg){
@@ -52,10 +52,21 @@ void chat_server::on_new_client(const socket_ptr& socket)
 
 void chat_server::on_message_receive(connection& from, const std::string& message)
 {
-  for(auto to : users_)
+  if(message == "\\quit")
   {
-    if(to.first != from.ip_port())
-      to.second->send(message);
+    on_connection_close(from);
+  }
+  else
+  {
+    std::string msg;
+    for(auto to : users_)
+    {
+      if(to.first != from.ip_port())
+      {
+        msg = message;
+        to.second->send(std::move(msg));
+      }
+    }
   }
 }
 
@@ -63,6 +74,7 @@ void chat_server::on_connection_close(connection& user)
 {
   std::string user_key = user.ip_port();
   std::cout << "[" << user_key << "] Connection closed." << std::endl;
+  user.close();
   users_.erase(user_key);
 }
 

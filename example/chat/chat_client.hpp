@@ -17,18 +17,14 @@
 class chat_client {
  public:
   chat_client();
-  ~chat_client();
 
   //! Connect to a given chat server host.
   /*! \param host Host name/ip to connect to
   \param port Port to connect to on host.
   */
   void connect(const std::string& host, const std::string& port);
-
-  void send(const std::string& message);
-
+  void send(std::string&& message);
   void run();
-
   void stop();
 
  private:
@@ -41,11 +37,10 @@ class chat_client {
   void message_received(const connection&, const std::string&);
   void connection_success(const socket_ptr& socket);
 
-  bool input_thread_running_;
-  boost::shared_ptr<std::thread> input_thread_;
-
-  boost::shared_ptr<connection> connection_;
-  chat_console console;
+  bool console_task_running_;
+  std::thread console_task_;
+  chat_console console_;
+  connection connection_;
   boost::asio::io_service io_service_;
   neev::client client_;
 };

@@ -9,53 +9,48 @@
 #include <sstream>
 
 chat_client::chat_client()
-: input_thread_running_(false),
-  input_thread_(),
+: console_task_running_(false),
+  console_task_(),
+  console_(),
+  connection_(),
   io_service_(), 
   client_(io_service_)
 {};
 
-chat_client::~chat_client()
-{
-  //Prevent possible leaking of thread resources.
-  stop_input_thread_and_join(); 
-}
-
 void chat_client::connect(const std::string& host, const std::string& port)
 {
-  console.write("Connecting to " + host + ":" + port + "...");
+  console_.write("Use the command \"\\quit\" to leave the chat.");
+  console_.write("Connecting to " + host + ":" + port + "...");
   client_.on_event<neev::connection_success>([this](const socket_ptr& s){
     connection_success(s);
   });
   client_.on_event<neev::connection_failure>([this](const boost::system::error_code& code){
-    console.write("Error while connecting: " + code.message()); 
+    console_.write("Error while connecting: " + code.message()); 
   });
   client_.async_connect(host, port);
 }
 
 void chat_client::message_received(const connection&, const std::string& message)
 {
-  console.write_full_line(message);
+  console_.write_full_line(message);
 }
 
 void chat_client::connection_success(const socket_ptr& socket)
 {
   assert(socket);
-  connection_ = boost::make_shared<connection>(socket);
-  connection_->on_event<msg_received>([this](const connection& c, const std::string& msg){
+  connection_.bind(socket);
+  connection_.on_event<msg_received>([this](const connection& c, const std::string& msg){
     message_received(c, msg);
   });
-  std::stringstream port_ip;
-  port_ip << socket->remote_endpoint();
-  console.write("Connected to " + port_ip.str());
+  // console_.write("Connected to " + connection_.ip_port());
 }
 
-void chat_client::send(const std::string& message)
+void chat_client::send(std::string&& message)
 {
   if(connection_)
-    connection_->send(message);
+    connection_.send(std::move(message));
   else
-    console.write("Unable to send message, no connection.");
+    console_.write("Unable to send message, no connection.");
 }
 
 void chat_client::run()
@@ -74,29 +69,31 @@ void chat_client::stop()
 void chat_client::input_listen_loop()
 {
   std::string msg;
-  std::getline(std::cin, msg);
-  while(input_thread_running_ && msg != "/quit")
+  while(console_task_running_)
   {
-    send(msg); //In this order so /quit doesn't get sent to the server.
     std::getline(std::cin, msg);
-    console.write_time();
+    if(msg == "\\quit")
+      console_task_running_ = false;
+    else
+      console_.write_time();
+    send(std::move(msg));
   }
-  this->stop();
+  stop();
 }
 
 void chat_client::start_input_thread()
 {
-  assert(!input_thread_running_);
-  input_thread_ = boost::make_shared<std::thread>([this](){input_listen_loop();});
-  input_thread_running_ = true;
+  assert(!console_task_running_);
+  console_task_ = std::thread([this](){input_listen_loop();});
+  console_task_running_ = true;
 }
 
 void chat_client::stop_input_thread_and_join()
 {
-  input_thread_running_ = false;
-  if(input_thread_->joinable())
+  console_task_running_ = false;
+  if(console_task_.joinable())
   {
-    input_thread_->join();
+    console_task_.join();
   }
 }
 
