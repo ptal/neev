@@ -4,11 +4,11 @@
 // (C) Copyright 2014 Callum <spoffeh@gmail.com>
 // (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
-#include <iostream>
+#include "chat_client.hpp"
 #include <neev/fixed_const_buffer.hpp>
 #include <neev/timer_policy.hpp>
+#include <iostream>
 #include <thread>
-#include "chat_client.hpp"
 
 void chat_client::connect(const std::string& host, const std::string& port)
 {

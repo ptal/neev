@@ -7,10 +7,11 @@
 #ifndef CHAT_CLIENT_HPP
 #define CHAT_CLIENT_HPP
 
+#include "connection.hpp"
 #include <boost/asio.hpp>
 #include <boost/smart_ptr.hpp>
 #include <neev/client/client.hpp>
-#include "connection.hpp"
+#include <thread>
 
 class chat_client {
  public:

@@ -7,10 +7,9 @@
 #ifndef CHAT_SERVER_HPP
 #define CHAT_SERVER_HPP
 
-#include <boost/asio.hpp>
+#include "connection.hpp"
 #include <neev/server/basic_server.hpp>
 #include <vector>
-#include "connection.hpp"
 
 
 //! Basic chat server for inter-user messaging.

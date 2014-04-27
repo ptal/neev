@@ -7,12 +7,12 @@
 #ifndef CHAT_CONNECTION_HPP
 #define CHAT_CONNECTION_HPP
 
-#include <boost/smart_ptr.hpp>
-#include <boost/asio.hpp>
+#include "chat_events.hpp"
 #include <neev/fixed_mutable_buffer.hpp>
 #include <neev/timer_policy.hpp>
 #include <neev/transfer_events.hpp>
-#include "chat_events.hpp"
+#include <boost/smart_ptr.hpp>
+#include <boost/asio.hpp>
 
 class connection {
  public:

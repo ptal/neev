@@ -4,15 +4,15 @@
 // (C) Copyright 2014 Callum <spoffeh@gmail.com>
 // (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
-#include <iostream>
-#include <algorithm>
-#include <neev/fixed_mutable_buffer.hpp>
 #include "chat_server.hpp"
 #include "chat_events.hpp"
+#include <neev/fixed_mutable_buffer.hpp>
 
-//Using Boost for compatibility with Neev, rather port to c++11.
 #include <boost/smart_ptr.hpp>
 #include <boost/make_shared.hpp>
+
+#include <iostream>
+#include <algorithm>
 
 void chat_server::open_on_port(const std::string& port)
 {
