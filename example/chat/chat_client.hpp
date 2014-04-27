@@ -8,9 +8,11 @@
 #define CHAT_CLIENT_HPP
 
 #include "connection.hpp"
+#include "chat_console.hpp"
 #include <boost/smart_ptr.hpp>
 #include <neev/client/client.hpp>
 #include <thread>
+#include <string>
 
 class chat_client {
  public:
@@ -23,7 +25,7 @@ class chat_client {
   */
   void connect(const std::string& host, const std::string& port);
 
-  void message(const std::string& message);
+  void send(const std::string& message);
 
   void run();
 
@@ -43,6 +45,7 @@ class chat_client {
   boost::shared_ptr<std::thread> input_thread_;
 
   boost::shared_ptr<connection> connection_;
+  chat_console console;
   boost::asio::io_service io_service_;
   neev::client client_;
 };

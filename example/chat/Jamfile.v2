@@ -6,4 +6,4 @@
 include ../lib_dependencies.v2 ;
 
 exe chat_server : chat_server.cpp connection.cpp boost_system boost_thread pthread ;
-exe chat_client : chat_client.cpp connection.cpp boost_system boost_thread pthread ;
+exe chat_client : chat_client.cpp connection.cpp chat_console.cpp boost_system boost_thread pthread ;

@@ -18,11 +18,7 @@ connection::connection(const socket_ptr& socket) : socket_(socket)
 //data cannot be const ref as make_fixed32_sender isn't const.
 void connection::send(std::string data)
 {
-  std::cout << "Connection: Sending: " << data << std::endl;
   auto sender = make_fixed32_sender<no_timer>(socket_, std::move(data));
-  sender->on_event<transfer_complete>([](){
-    std::cout << "Sending: Transfer complete" << std::endl;
-  });
   sender->on_event<transfer_error>([this](const boost::system::error_code& e){
     on_transfer_failure(e);
   });
@@ -54,4 +50,3 @@ void connection::on_transfer_failure(const boost::system::error_code&)
 {
   events_.signal_event<client_quit>(*this);
 }    
-
