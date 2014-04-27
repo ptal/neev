@@ -25,9 +25,11 @@ void connection::send(std::string data)
   sender->async_transfer();
 }
 
-connection::socket_ptr connection::get_socket() const
+std::string connection::ip_port() const
 {
-  return socket_;
+  std::stringstream client_key;
+  client_key << socket_->remote_endpoint();
+  return client_key.str();
 }
 
 void connection::new_receiver()

@@ -13,11 +13,12 @@ class chat_console {
   chat_console();
 
   void write(const std::string& line);
-  void write_with_time(const std::string& line);
+  void write_full_line(const std::string& line);
+  void write_time();
 
  private:
+  void print_message(const std::string& msg) const;
   void print_time() const;
-  void print_message(const std::string& msg);
 
   std::mutex console_lock;
 };

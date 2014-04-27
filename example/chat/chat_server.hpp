@@ -9,7 +9,7 @@
 
 #include "connection.hpp"
 #include <neev/server/basic_server.hpp>
-#include <vector>
+#include <unordered_map>
 
 
 //! Basic chat server for inter-user messaging.
@@ -27,12 +27,13 @@ class chat_server {
 
  private:
   using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
+  using connection_ptr = boost::shared_ptr<connection>;
 
   void on_new_client(const socket_ptr& socket);
   void on_message_receive(connection&, const std::string&);
   void on_connection_close(connection&);
 
-  std::vector<boost::shared_ptr<connection>> connections_;
+  std::unordered_map<std::string, connection_ptr> users_;
   neev::basic_server server_;
 };
 

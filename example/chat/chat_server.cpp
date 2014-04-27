@@ -12,7 +12,6 @@
 #include <boost/make_shared.hpp>
 
 #include <iostream>
-#include <algorithm>
 
 void chat_server::open_on_port(const std::string& port)
 {
@@ -35,32 +34,36 @@ void chat_server::close()
 
 void chat_server::on_new_client(const socket_ptr& socket)
 {
-  std::cout << "[" << socket->remote_endpoint() << "] Connected." << std::endl;
-  boost::shared_ptr<connection> conn = boost::make_shared<connection>(socket);
-  conn->on_event<client_quit>([this](connection& c){
-    on_connection_close(c);
-  });
-  conn->on_event<msg_received>([this](connection& c, const std::string& msg){
-    on_message_receive(c, msg);
-  });
-  connections_.push_back(conn);
-}
-
-void chat_server::on_message_receive(connection& conn_from, const std::string& message)
-{
-  for(auto conn_to : connections_)
+  connection_ptr user = boost::make_shared<connection>(socket);
+  std::string user_key = user->ip_port();
+  // Add the new user only if he's not connected yet.
+  if(users_.find(user_key) == users_.end())
   {
-    conn_to->send(message);
+    std::cout << "[" << user_key << "] Connected." << std::endl;
+    user->on_event<client_quit>([this](connection& c){
+      on_connection_close(c);
+    });
+    user->on_event<msg_received>([this](connection& c, const std::string& msg){
+      on_message_receive(c, msg);
+    });
+    users_[user_key] = user;
   }
 }
 
-void chat_server::on_connection_close(connection& conn)
+void chat_server::on_message_receive(connection& from, const std::string& message)
 {
-  std::cout << "[" << conn.get_socket()->remote_endpoint() << "] Connection closed." << std::endl;
-  std::remove_if(connections_.begin(), connections_.end(),
-    [&](boost::shared_ptr<connection> conn_pointer){
-      return &conn == conn_pointer.get(); //If same object
-    });
+  for(auto to : users_)
+  {
+    if(to.first != from.ip_port())
+      to.second->send(message);
+  }
+}
+
+void chat_server::on_connection_close(connection& user)
+{
+  std::string user_key = user.ip_port();
+  std::cout << "[" << user_key << "] Connection closed." << std::endl;
+  users_.erase(user_key);
 }
 
 int main(int argc, char * argv[])

@@ -27,7 +27,7 @@ class connection {
     events_.on_event<Event>(callback);
   }
 
-  socket_ptr get_socket() const;
+  std::string ip_port() const;
 
  private:
   void new_receiver();

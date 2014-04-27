@@ -35,7 +35,7 @@ void chat_client::connect(const std::string& host, const std::string& port)
 
 void chat_client::message_received(const connection&, const std::string& message)
 {
-  console.write_with_time(message);
+  console.write_full_line(message);
 }
 
 void chat_client::connection_success(const socket_ptr& socket)
@@ -79,6 +79,7 @@ void chat_client::input_listen_loop()
   {
     send(msg); //In this order so /quit doesn't get sent to the server.
     std::getline(std::cin, msg);
+    console.write_time();
   }
   this->stop();
 }

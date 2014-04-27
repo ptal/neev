@@ -24,7 +24,7 @@ void chat_console::print_time() const
     boost::lexical_cast<std::string>(current_time.tm_min) << "] " << std::flush;
 }
 
-void chat_console::print_message(const std::string& msg)
+void chat_console::print_message(const std::string& msg) const
 {
   std::cout << msg << std::endl;
   print_time();
@@ -36,9 +36,16 @@ void chat_console::write(const std::string& msg)
   print_message(msg);
 }
 
-void chat_console::write_with_time(const std::string& msg)
+void chat_console::write_time()
 {
   std::lock_guard<std::mutex> lock(console_lock);
+  print_time();
+}
+
+void chat_console::write_full_line(const std::string& msg)
+{
+  std::lock_guard<std::mutex> lock(console_lock);
+  std::cout << "\n";
   print_time();
   print_message(msg);
 }
