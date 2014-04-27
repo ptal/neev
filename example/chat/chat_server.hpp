@@ -1,5 +1,11 @@
-#ifndef CHAT_SERVER_INCLUDE
-#define CHAT_SERVER_INCLUDE
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE.txt
+//
+// (C) Copyright 2014 Callum <spoffeh@gmail.com>
+// (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
+#ifndef CHAT_SERVER_HPP
+#define CHAT_SERVER_HPP
 
 #include <boost/asio.hpp>
 #include <neev/server/basic_server.hpp>

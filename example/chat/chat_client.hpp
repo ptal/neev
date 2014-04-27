@@ -1,5 +1,11 @@
-#ifndef CHAT_CLIENT_INCLUDED
-#define CHAT_CLIENT_INCLUDED
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE.txt
+//
+// (C) Copyright 2014 Callum <spoffeh@gmail.com>
+// (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
+#ifndef CHAT_CLIENT_HPP
+#define CHAT_CLIENT_HPP
 
 #include <boost/asio.hpp>
 #include <boost/smart_ptr.hpp>
@@ -31,7 +37,7 @@ class chat_client {
 
  private:
   using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
-  
+
   void input_listen_loop();
   void start_input_thread();
   void stop_input_thread_and_join();

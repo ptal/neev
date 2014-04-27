@@ -1,3 +1,9 @@
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE.txt
+//
+// (C) Copyright 2014 Callum <spoffeh@gmail.com>
+// (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
 #include "connection.hpp"
 #include <neev/fixed_const_buffer.hpp>
 

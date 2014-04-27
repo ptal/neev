@@ -1,5 +1,11 @@
-#ifndef CONNECTION_INCLUDED
-#define CONNECTION_INCLUDED
+// Distributed under the Boost Software License, Version 1.0. (See
+// accompanying file LICENSE.txt
+//
+// (C) Copyright 2014 Callum <spoffeh@gmail.com>
+// (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
+
+#ifndef CHAT_CONNECTION_HPP
+#define CHAT_CONNECTION_HPP
 
 #include <boost/smart_ptr.hpp>
 #include <boost/asio.hpp>
