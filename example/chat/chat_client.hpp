@@ -21,8 +21,8 @@ class chat_client {
   /*! \param host Host name/ip to connect to
   \param port Port to connect to on host.
   */
-  void connect(const std::string& host, const std::string& port);
-  void send(std::string&& message);
+  void async_connect(const std::string& host, const std::string& port);
+  void async_send_msg(std::string&& message);
   void run();
 
  private:

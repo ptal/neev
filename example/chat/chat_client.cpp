@@ -20,7 +20,7 @@ chat_client::chat_client()
   client_(io_service_)
 {};
 
-void chat_client::connect(const std::string& host, const std::string& port)
+void chat_client::async_connect(const std::string& host, const std::string& port)
 {
   console_.write("Use the command \"\\quit\" to leave the chat.");
   console_.write("Connecting to " + host + ":" + port + "...");
@@ -66,7 +66,7 @@ void chat_client::on_connection_success(const socket_ptr& socket)
   console_.write("Connected to " + ip_port(socket_));
 }
 
-void chat_client::send(std::string&& message)
+void chat_client::async_send_msg(std::string&& message)
 {
   if(socket_)
   {
@@ -121,7 +121,7 @@ void chat_client::console_listen_loop()
       quit = true;
     else
       console_.write_time();
-    send(std::move(msg));
+    async_send_msg(std::move(msg));
   }
   if(quit)
     disconnect("quit");
@@ -133,6 +133,6 @@ int main()
   std::string host = "localhost";
   std::string port = "8000";
   chat_client client;
-  client.connect(host, port);
+  client.async_connect(host, port);
   client.run();
 }
