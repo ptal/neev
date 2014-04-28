@@ -27,13 +27,18 @@ void chat_console::print_time() const
 void chat_console::print_message(const std::string& msg) const
 {
   std::cout << msg << std::endl;
+}
+
+void chat_console::print_timed_message(const std::string& msg) const
+{
+  print_message(msg);
   print_time();
 }
 
 void chat_console::write(const std::string& msg)
 {
   std::lock_guard<std::mutex> lock(console_lock);
-  print_message(msg);
+  print_timed_message(msg);
 }
 
 void chat_console::write_time()
@@ -46,5 +51,13 @@ void chat_console::write_full_line(const std::string& msg)
 {
   std::lock_guard<std::mutex> lock(console_lock);
   std::cout << "\n";
+  print_time();
+  print_timed_message(msg);
+}
+
+void chat_console::write_line(const std::string& msg)
+{
+  std::lock_guard<std::mutex> lock(console_lock);
+  print_time();
   print_message(msg);
 }

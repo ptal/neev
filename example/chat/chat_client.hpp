@@ -7,7 +7,6 @@
 #ifndef CHAT_CLIENT_HPP
 #define CHAT_CLIENT_HPP
 
-#include "connection.hpp"
 #include "chat_console.hpp"
 #include <boost/smart_ptr.hpp>
 #include <neev/client/client.hpp>
@@ -25,22 +24,22 @@ class chat_client {
   void connect(const std::string& host, const std::string& port);
   void send(std::string&& message);
   void run();
-  void stop();
 
  private:
   using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
 
-  void input_listen_loop();
-  void start_input_thread();
-  void stop_input_thread_and_join();
+  bool connected() const;
+  void disconnect(const std::string& reason);
+  void async_wait_message();
 
-  void message_received(const connection&, const std::string&);
-  void connection_success(const socket_ptr& socket);
+  void console_listen_loop();
 
-  bool console_task_running_;
+  void message_received(const std::string&);
+  void on_connection_success(const socket_ptr& socket);
+
+  socket_ptr socket_;
   std::thread console_task_;
   chat_console console_;
-  connection connection_;
   boost::asio::io_service io_service_;
   neev::client client_;
 };

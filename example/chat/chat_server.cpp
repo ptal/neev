@@ -5,76 +5,91 @@
 // (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include "chat_server.hpp"
-#include "chat_events.hpp"
+#include "utility.hpp"
 #include <neev/fixed_mutable_buffer.hpp>
+#include <neev/fixed_const_buffer.hpp>
 
 #include <boost/smart_ptr.hpp>
 #include <boost/make_shared.hpp>
 
 #include <iostream>
 
-void chat_server::open_on_port(const std::string& port)
+using namespace neev;
+
+void chat_server::launch(const std::string& port)
 {
-  server_.on_event<neev::new_client>([this](const socket_ptr& s){
+  server_.on_event<new_client>([this](const socket_ptr& s){
     on_new_client(s);
   });
-  server_.on_event<neev::start_failure>([](){
+  server_.on_event<start_failure>([](){
     std::cerr << "Failed to open server" << std::endl;
   });
-  server_.on_event<neev::start_success>([](const boost::asio::ip::tcp::endpoint& endpoint){
+  server_.on_event<start_success>([](const boost::asio::ip::tcp::endpoint& endpoint){
     std::cout << "Server opened at " << endpoint << std::endl;
   });
   server_.launch(port);
 }
 
-void chat_server::close()
+void chat_server::stop()
 {
   server_.stop();
 }
 
-void chat_server::on_new_client(const socket_ptr& socket)
+void chat_server::async_wait_msg(const socket_ptr& user)
 {
-  connection_ptr user = boost::make_shared<connection>(socket);
-  std::string user_key = user->ip_port();
+  auto receiver = make_fixed32_receiver<no_timer>(user);
+  receiver->on_event<transfer_complete>([=](){
+    message_received(user, receiver->data());
+  });
+  receiver->on_event<transfer_error>([=](const boost::system::error_code& e){
+    disconnect_user(user, e.message());
+  });
+  receiver->async_transfer();
+}
+
+void chat_server::async_send_msg(const socket_ptr& user, std::string msg)
+{
+  auto sender = make_fixed32_sender<no_timer>(user, std::move(msg));
+  sender->on_event<transfer_error>([=](const boost::system::error_code& e){
+    disconnect_user(user, e.message());
+  });
+  sender->async_transfer();
+}
+
+void chat_server::on_new_client(const socket_ptr& user)
+{
+  std::string user_key = ip_port(user);
   // Add the new user only if he's not connected yet.
   if(users_.find(user_key) == users_.end())
   {
     std::cout << "[" << user_key << "] Connected." << std::endl;
-    user->on_event<disconnected>([this](connection& c){
-      on_connection_close(c);
-    });
-    user->on_event<msg_received>([this](connection& c, const std::string& msg){
-      on_message_receive(c, msg);
-    });
+    async_wait_msg(user);
     users_[user_key] = user;
   }
 }
 
-void chat_server::on_message_receive(connection& from, const std::string& message)
+void chat_server::message_received(const socket_ptr& from, const std::string& message)
 {
   if(message == "\\quit")
   {
-    on_connection_close(from);
+    disconnect_user(from, "quit");
   }
   else
   {
-    std::string msg;
+    std::string from_key = ip_port(from);
     for(auto to : users_)
-    {
-      if(to.first != from.ip_port())
-      {
-        msg = message;
-        to.second->send(std::move(msg));
-      }
-    }
+      if(to.first != from_key)
+        async_send_msg(to.second, message);
+    async_wait_msg(from);
   }
 }
 
-void chat_server::on_connection_close(connection& user)
+void chat_server::disconnect_user(const socket_ptr& user, const std::string& reason)
 {
-  std::string user_key = user.ip_port();
-  std::cout << "[" << user_key << "] Connection closed." << std::endl;
-  user.close();
+  std::string user_key = ip_port(user);
+  std::cout << "[" << user_key << "] Connection closed (" << reason << ")" << std::endl;
+  user->shutdown(boost::asio::ip::tcp::socket::shutdown_both);
+  user->close();
   users_.erase(user_key);
 }
 
@@ -82,6 +97,6 @@ int main(int argc, char * argv[])
 {
   std::string port = "8000";
   chat_server server;
-  server.open_on_port(port);
+  server.launch(port);
   return 0;
 }

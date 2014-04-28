@@ -7,7 +7,6 @@
 #ifndef CHAT_SERVER_HPP
 #define CHAT_SERVER_HPP
 
-#include "connection.hpp"
 #include <neev/server/basic_server.hpp>
 #include <unordered_map>
 
@@ -15,25 +14,26 @@
 //! Basic chat server for inter-user messaging.
 class chat_server {
  public:
-  //! Opens the server on the specified port.
+  //! Launch the server on the specified port.
   /*! Listens for chat messages on the specified port.
       \param port The port number to listen on.
       \return Doesn't return unless the server failed to start.
   */
-  void open_on_port(const std::string& port);
+  void launch(const std::string& port);
 
-  //! Closes the chat server.
-  void close();
+  //! Stop the chat server.
+  void stop();
 
  private:
   using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
-  using connection_ptr = boost::shared_ptr<connection>;
 
-  void on_new_client(const socket_ptr& socket);
-  void on_message_receive(connection&, const std::string&);
-  void on_connection_close(connection&);
+  void async_wait_msg(const socket_ptr& user);
+  void async_send_msg(const socket_ptr& user, std::string msg);
+  void on_new_client(const socket_ptr& user);
+  void message_received(const socket_ptr& from, const std::string& message);
+  void disconnect_user(const socket_ptr& user, const std::string& reason);
 
-  std::unordered_map<std::string, connection_ptr> users_;
+  std::unordered_map<std::string, socket_ptr> users_;
   neev::basic_server server_;
 };
 
