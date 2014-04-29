@@ -73,7 +73,7 @@ struct event_slot<new_client>
 {
   /** Notify that a new client has been accepted.
   */
-  typedef void type(const boost::shared_ptr<boost::asio::ip::tcp::socket>&);
+  typedef void type(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
 };
 
 struct server_events : 

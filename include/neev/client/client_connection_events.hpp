@@ -33,7 +33,7 @@ struct event_slot<connection_success>
 {
   /** Notify that the client is connected to the server with the socket passed in the arguments.
   */
-  typedef void type(const boost::shared_ptr<boost::asio::ip::tcp::socket>&);
+  typedef void type(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
 };
 
 template <>

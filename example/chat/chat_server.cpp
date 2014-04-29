@@ -8,10 +8,6 @@
 #include "utility.hpp"
 #include <neev/fixed_mutable_buffer.hpp>
 #include <neev/fixed_const_buffer.hpp>
-
-#include <boost/smart_ptr.hpp>
-#include <boost/make_shared.hpp>
-
 #include <iostream>
 
 using namespace neev;

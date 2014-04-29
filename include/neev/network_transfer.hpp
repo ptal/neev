@@ -14,8 +14,8 @@
 
 #include <neev/transfer_events.hpp>
 #include <boost/asio.hpp>
-#include <boost/enable_shared_from_this.hpp>
 #include <boost/assert.hpp>
+#include <memory>
 
 namespace neev{
 
@@ -31,11 +31,11 @@ template <class BufferProvider, class TransferOp, class TimerPolicy = no_timer>
 class network_transfer
 : private boost::noncopyable
 , private TimerPolicy
-, public boost::enable_shared_from_this<network_transfer<BufferProvider, TransferOp, TimerPolicy> >
+, public std::enable_shared_from_this<network_transfer<BufferProvider, TransferOp, TimerPolicy> >
 {
 public:
   typedef boost::asio::ip::tcp::socket socket_type;
-  typedef boost::shared_ptr<socket_type> socket_ptr;
+  typedef std::shared_ptr<socket_type> socket_ptr;
   typedef BufferProvider provider_type;
   typedef network_transfer<provider_type, TransferOp, TimerPolicy> this_type;
   typedef typename provider_type::buffer_type buffer_type;
@@ -74,7 +74,7 @@ public:
   {
     static_assert(!boost::is_same<TimerPolicy, no_timer>::value,
       "async_transfer(const boost::posix_time::time_duration& timeout) is not available"
-      " because you the timer policy of network_transfer is set to no_timer.");
+      " because the timer policy of network_transfer is set to no_timer.");
     init_provider();
     if(!this->is_done())
     {

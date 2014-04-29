@@ -10,9 +10,7 @@
 #include <neev/transfer_operation.hpp>
 #include <neev/network_transfer.hpp>
 #include <neev/network_converter.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/ref.hpp>
+#include <memory>
 #include <string>
 #include <cstdint>
 
@@ -77,15 +75,15 @@ template <class TimerPolicy = no_timer>
 using basic_sender = network_transfer<basic_const_buffer<>, send_transfer, TimerPolicy>;
 
 template <class TimerPolicy = no_timer>
-using basic_sender_ptr = boost::shared_ptr<basic_sender<TimerPolicy> >;
+using basic_sender_ptr = std::shared_ptr<basic_sender<TimerPolicy> >;
 
 template <class TimerPolicy, class Socket>
-basic_sender_ptr<TimerPolicy> make_basic_sender(const boost::shared_ptr<Socket>& socket, std::string&& data)
+basic_sender_ptr<TimerPolicy> make_basic_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
   typedef basic_sender<TimerPolicy> sender_type;
   typedef typename sender_type::provider_type provider_type;
 
-  return boost::make_shared<sender_type>(
+  return std::make_shared<sender_type>(
     std::cref(socket), provider_type(std::move(data)));
 }
 

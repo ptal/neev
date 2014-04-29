@@ -11,14 +11,13 @@
 
 #include <neev/client/client_connection_events.hpp>
 #include <boost/lexical_cast.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/enable_shared_from_this.hpp>
+#include <memory>
 
 namespace neev{
 namespace detail{
 
 class shared_client :
-  public boost::enable_shared_from_this<shared_client>
+  public std::enable_shared_from_this<shared_client>
 , public boost::noncopyable
 {
 private:
@@ -26,12 +25,12 @@ private:
 
 public:
   typedef boost::asio::ip::tcp::socket socket_type;
-  typedef boost::shared_ptr<socket_type> socket_ptr;
+  typedef std::shared_ptr<socket_type> socket_ptr;
 
   /** Build the client with a io_service, it doesn't launch anything.
   */
   shared_client(boost::asio::io_service &io_service)
-  : socket_(boost::make_shared<socket_type>(boost::ref(io_service)))
+  : socket_(std::make_shared<socket_type>(std::ref(io_service)))
   , resolver_(io_service)
   {}
 
@@ -135,9 +134,9 @@ private:
 
 /** Build the client with a io_service, it doesn't launch anything.
 */
-boost::shared_ptr<shared_client> make_shared_client(boost::asio::io_service &io_service)
+std::shared_ptr<shared_client> make_shared_client(boost::asio::io_service &io_service)
 {
-  return boost::make_shared<shared_client>(boost::ref(io_service));
+  return std::make_shared<shared_client>(std::ref(io_service));
 }
 
 } // namespace detail
@@ -146,7 +145,7 @@ class client : public boost::noncopyable
 {
 public:
   typedef boost::asio::ip::tcp::socket socket_type;
-  typedef boost::shared_ptr<socket_type> socket_ptr;
+  typedef std::shared_ptr<socket_type> socket_ptr;
 
   client(boost::asio::io_service &io_service)
   : shared_client(detail::make_shared_client(io_service))
@@ -179,7 +178,7 @@ public:
   }
 
 private:
-  boost::shared_ptr<detail::shared_client> shared_client;
+  std::shared_ptr<detail::shared_client> shared_client;
 };
 
 } // namespace neev

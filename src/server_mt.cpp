@@ -8,8 +8,8 @@
 
 #include <neev/server/server_mt.hpp>
 #include <boost/thread/thread.hpp>
-#include <boost/make_shared.hpp>
 #include <stdexcept>
+#include <memory>
 
 namespace neev{
 
@@ -30,10 +30,10 @@ server_mt::server_mt(std::size_t threads)
 void server_mt::run()
 {
   // Create a pool of threads to run all of the io_services.
-  std::vector<boost::shared_ptr<boost::thread> > threads;
+  std::vector<std::shared_ptr<boost::thread> > threads;
   for (std::size_t i = 0; i < thread_pool_size_-1; ++i)
   {
-    boost::shared_ptr<boost::thread> thread = boost::make_shared<boost::thread>(
+    std::shared_ptr<boost::thread> thread = std::make_shared<boost::thread>(
           boost::bind(&base_type::run, this));
     threads.push_back(thread);
   }

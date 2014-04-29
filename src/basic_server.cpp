@@ -7,7 +7,6 @@
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/server/basic_server.hpp>
-#include <boost/make_shared.hpp>
 #include <boost/current_function.hpp>
 
 namespace neev{
@@ -83,7 +82,7 @@ void basic_server::launch(const std::string& service)
 
 void basic_server::start_accept()
 {
-  socket_ptr socket = boost::make_shared<socket_type>(boost::ref(io_service_));
+  socket_ptr socket = std::make_shared<socket_type>(std::ref(io_service_));
   acceptor_.async_accept(*socket,
     boost::bind(&basic_server::handle_accept, this, socket, boost::asio::placeholders::error)
   );

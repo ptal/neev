@@ -18,7 +18,7 @@ position make_position()
   return position(dist(rd), dist(rd), dist(rd));
 }
 
-void on_new_client(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void on_new_client(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   std::cout << "new client...\n";
   auto sender = neev::make_archive8_sender<no_timer>(socket, make_position());

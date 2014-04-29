@@ -15,10 +15,10 @@ template <class TimerPolicy, class SizeType>
 using archive_sender = network_transfer<fixed_const_buffer<SizeType>, send_transfer, TimerPolicy>;
 
 template <class TimerPolicy, class SizeType>
-using archive_sender_ptr = boost::shared_ptr<archive_sender<TimerPolicy, SizeType> >;
+using archive_sender_ptr = std::shared_ptr<archive_sender<TimerPolicy, SizeType> >;
 
 template <class TimerPolicy, class SizeType, class Socket, class Archive>
-archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const boost::shared_ptr<Socket>& socket, const Archive& data)
+archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
   typedef archive_sender<TimerPolicy, SizeType> sender_type;
   typedef typename sender_type::provider_type provider_type;
@@ -29,24 +29,24 @@ archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const boost::share
   boost::archive::text_oarchive archive(archive_stream);
   archive << data;
 
-  return boost::make_shared<sender_type>(
+  return std::make_shared<sender_type>(
     std::cref(socket), provider_type(archive_stream.str()));
 }
 
 template <class TimerPolicy, class Archive, class Socket>
-archive_sender_ptr<TimerPolicy, std::uint32_t> make_archive32_sender(const boost::shared_ptr<Socket>& socket, const Archive& data)
+archive_sender_ptr<TimerPolicy, std::uint32_t> make_archive32_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
   return make_archive_sender<TimerPolicy, std::uint32_t>(socket, std::move(data));
 }
 
 template <class TimerPolicy, class Socket, class Archive>
-archive_sender_ptr<TimerPolicy, std::uint16_t> make_archive16_sender(const boost::shared_ptr<Socket>& socket, const Archive& data)
+archive_sender_ptr<TimerPolicy, std::uint16_t> make_archive16_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
   return make_archive_sender<TimerPolicy, std::uint16_t>(socket, std::move(data));
 }
 
 template <class TimerPolicy, class Socket, class Archive>
-archive_sender_ptr<TimerPolicy, std::uint8_t> make_archive8_sender(const boost::shared_ptr<Socket>& socket, const Archive& data)
+archive_sender_ptr<TimerPolicy, std::uint8_t> make_archive8_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
   return make_archive_sender<TimerPolicy, std::uint8_t>(socket, std::move(data));
 }

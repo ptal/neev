@@ -74,31 +74,31 @@ template <class Archive, class TimerPolicy, class SizeType>
 using archive_receiver = network_transfer<archive_mutable_buffer<Archive, SizeType>, receive_transfer, TimerPolicy>;
 
 template <class Archive, class TimerPolicy, class SizeType>
-using archive_receiver_ptr = boost::shared_ptr<archive_receiver<Archive, TimerPolicy, SizeType> >;
+using archive_receiver_ptr = std::shared_ptr<archive_receiver<Archive, TimerPolicy, SizeType> >;
 
 template <class Archive, class TimerPolicy, class SizeType, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, SizeType> make_archive_receiver(const boost::shared_ptr<Socket>& socket)
+archive_receiver_ptr<Archive, TimerPolicy, SizeType> make_archive_receiver(const std::shared_ptr<Socket>& socket)
 {
   typedef archive_receiver<Archive, TimerPolicy, SizeType> receiver_type;
   typedef typename receiver_type::provider_type provider_type;
 
-  return boost::make_shared<receiver_type>(std::cref(socket), provider_type());
+  return std::make_shared<receiver_type>(std::cref(socket), provider_type());
 }
 
 template <class Archive, class TimerPolicy, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, std::uint32_t> make_archive32_receiver(const boost::shared_ptr<Socket>& socket)
+archive_receiver_ptr<Archive, TimerPolicy, std::uint32_t> make_archive32_receiver(const std::shared_ptr<Socket>& socket)
 {
   return make_archive_receiver<Archive, TimerPolicy, std::uint32_t>(socket);
 }
 
 template <class Archive, class TimerPolicy, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, std::uint16_t> make_archive16_receiver(const boost::shared_ptr<Socket>& socket)
+archive_receiver_ptr<Archive, TimerPolicy, std::uint16_t> make_archive16_receiver(const std::shared_ptr<Socket>& socket)
 {
   return make_archive_receiver<Archive, TimerPolicy, std::uint16_t>(socket);
 }
 
 template <class Archive, class TimerPolicy, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, std::uint8_t> make_archive8_receiver(const boost::shared_ptr<Socket>& socket)
+archive_receiver_ptr<Archive, TimerPolicy, std::uint8_t> make_archive8_receiver(const std::shared_ptr<Socket>& socket)
 {
   return make_archive_receiver<Archive, TimerPolicy, std::uint8_t>(socket);
 }

@@ -13,7 +13,7 @@ void print_date(const std::string& date)
   std::cout << date << std::endl;
 }
 
-void receive_date(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void receive_date(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   using namespace neev;
   auto receiver = make_fixed16_receiver<no_timer>(socket);

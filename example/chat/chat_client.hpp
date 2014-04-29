@@ -8,7 +8,6 @@
 #define CHAT_CLIENT_HPP
 
 #include "chat_console.hpp"
-#include <boost/smart_ptr.hpp>
 #include <neev/client/client.hpp>
 #include <thread>
 #include <string>
@@ -26,7 +25,7 @@ class chat_client {
   void run();
 
  private:
-  using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
+  using socket_ptr = std::shared_ptr<boost::asio::ip::tcp::socket>;
 
   bool connected() const;
   void disconnect(const std::string& reason);

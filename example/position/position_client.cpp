@@ -20,7 +20,7 @@ void print_pos(const position& pos)
   std::cout << pos << std::endl;
 }
 
-void receive_pos(const boost::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+void receive_pos(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   using namespace neev;
   auto receiver = make_archive8_receiver<position, no_timer>(socket);

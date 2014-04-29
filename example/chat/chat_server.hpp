@@ -25,7 +25,7 @@ class chat_server {
   void stop();
 
  private:
-  using socket_ptr = boost::shared_ptr<boost::asio::ip::tcp::socket>;
+  using socket_ptr = std::shared_ptr<boost::asio::ip::tcp::socket>;
 
   void async_wait_msg(const socket_ptr& user);
   void async_send_msg(const socket_ptr& user, std::string msg);

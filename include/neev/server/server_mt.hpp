@@ -18,7 +18,7 @@ class server_mt : public basic_server
 private:
   typedef basic_server base_type;
   typedef boost::asio::ip::tcp::socket socket_type;
-  typedef boost::shared_ptr<socket_type> socket_ptr;
+  typedef std::shared_ptr<socket_type> socket_ptr;
 
 public:
   server_mt(std::size_t pool_size);

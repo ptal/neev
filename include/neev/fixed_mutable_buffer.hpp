@@ -85,31 +85,31 @@ template <class TimerPolicy, class SizeType>
 using fixed_receiver = network_transfer<fixed_mutable_buffer<SizeType>, receive_transfer, TimerPolicy>;
 
 template <class TimerPolicy, class SizeType>
-using fixed_receiver_ptr = boost::shared_ptr<fixed_receiver<TimerPolicy, SizeType> >;
+using fixed_receiver_ptr = std::shared_ptr<fixed_receiver<TimerPolicy, SizeType> >;
 
 template <class TimerPolicy, class SizeType, class Socket>
-fixed_receiver_ptr<TimerPolicy, SizeType> make_fixed_receiver(const boost::shared_ptr<Socket>& socket)
+fixed_receiver_ptr<TimerPolicy, SizeType> make_fixed_receiver(const std::shared_ptr<Socket>& socket)
 {
   typedef fixed_receiver<TimerPolicy, SizeType> receiver_type;
   typedef typename receiver_type::provider_type provider_type;
 
-  return boost::make_shared<receiver_type>(std::cref(socket), provider_type());
+  return std::make_shared<receiver_type>(std::cref(socket), provider_type());
 }
 
 template <class TimerPolicy, class Socket>
-fixed_receiver_ptr<TimerPolicy, std::uint32_t> make_fixed32_receiver(const boost::shared_ptr<Socket>& socket)
+fixed_receiver_ptr<TimerPolicy, std::uint32_t> make_fixed32_receiver(const std::shared_ptr<Socket>& socket)
 {
   return make_fixed_receiver<TimerPolicy, std::uint32_t>(socket);
 }
 
 template <class TimerPolicy, class Socket>
-fixed_receiver_ptr<TimerPolicy, std::uint16_t> make_fixed16_receiver(const boost::shared_ptr<Socket>& socket)
+fixed_receiver_ptr<TimerPolicy, std::uint16_t> make_fixed16_receiver(const std::shared_ptr<Socket>& socket)
 {
   return make_fixed_receiver<TimerPolicy, std::uint16_t>(socket);
 }
 
 template <class TimerPolicy, class Socket>
-fixed_receiver_ptr<TimerPolicy, std::uint8_t> make_fixed8_receiver(const boost::shared_ptr<Socket>& socket)
+fixed_receiver_ptr<TimerPolicy, std::uint8_t> make_fixed8_receiver(const std::shared_ptr<Socket>& socket)
 {
   return make_fixed_receiver<TimerPolicy, std::uint8_t>(socket);
 }

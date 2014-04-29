@@ -27,7 +27,7 @@ public:
   typedef boost::asio::ip::tcp::socket socket_type;
 
   /// Pointer type to the socket created by this server.
-  typedef boost::shared_ptr<socket_type> socket_ptr;
+  typedef std::shared_ptr<socket_type> socket_ptr;
 
 public:
   /** Initialize the server.

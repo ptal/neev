@@ -66,32 +66,32 @@ template <class TimerPolicy, class SizeType>
 using fixed_sender = network_transfer<fixed_const_buffer<SizeType>, send_transfer, TimerPolicy>;
 
 template <class TimerPolicy, class SizeType>
-using fixed_sender_ptr = boost::shared_ptr<fixed_sender<TimerPolicy, SizeType> >;
+using fixed_sender_ptr = std::shared_ptr<fixed_sender<TimerPolicy, SizeType> >;
 
 template <class TimerPolicy, class SizeType, class Socket>
-fixed_sender_ptr<TimerPolicy, SizeType> make_fixed_sender(const boost::shared_ptr<Socket>& socket, std::string&& data)
+fixed_sender_ptr<TimerPolicy, SizeType> make_fixed_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
   typedef fixed_sender<TimerPolicy, SizeType> sender_type;
   typedef typename sender_type::provider_type provider_type;
 
-  return boost::make_shared<sender_type>(
+  return std::make_shared<sender_type>(
     std::cref(socket), std::move(provider_type(std::move(data))));
 }
 
 template <class TimerPolicy, class Socket>
-fixed_sender_ptr<TimerPolicy, std::uint32_t> make_fixed32_sender(const boost::shared_ptr<Socket>& socket, std::string&& data)
+fixed_sender_ptr<TimerPolicy, std::uint32_t> make_fixed32_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
   return make_fixed_sender<TimerPolicy, std::uint32_t>(socket, std::move(data));
 }
 
 template <class TimerPolicy, class Socket>
-fixed_sender_ptr<TimerPolicy, std::uint16_t> make_fixed16_sender(const boost::shared_ptr<Socket>& socket, std::string&& data)
+fixed_sender_ptr<TimerPolicy, std::uint16_t> make_fixed16_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
   return make_fixed_sender<TimerPolicy, std::uint16_t>(socket, std::move(data));
 }
 
 template <class TimerPolicy, class Socket>
-fixed_sender_ptr<TimerPolicy, std::uint8_t> make_fixed8_sender(const boost::shared_ptr<Socket>& socket, std::string&& data)
+fixed_sender_ptr<TimerPolicy, std::uint8_t> make_fixed8_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
   return make_fixed_sender<TimerPolicy, std::uint8_t>(socket, std::move(data));
 }
