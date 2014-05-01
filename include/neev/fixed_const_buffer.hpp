@@ -15,12 +15,12 @@ class fixed_const_buffer
 : private basic_const_buffer<std::vector<boost::asio::const_buffers_1> >
 {
 public:
-  typedef SizeType size_type;
-  typedef std::string data_type;
-  typedef std::vector<boost::asio::const_buffers_1> buffer_type;
+  using size_type = SizeType;
+  using data_type = std::string;
+  using buffer_type = std::vector<boost::asio::const_buffers_1>;
 
 private:
-  typedef basic_const_buffer<buffer_type> base_type;
+  using base_type = basic_const_buffer<buffer_type>;
 
 public:
   fixed_const_buffer(data_type&& data)
@@ -71,8 +71,8 @@ using fixed_sender_ptr = std::shared_ptr<fixed_sender<TimerPolicy, SizeType> >;
 template <class TimerPolicy, class SizeType, class Socket>
 fixed_sender_ptr<TimerPolicy, SizeType> make_fixed_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
-  typedef fixed_sender<TimerPolicy, SizeType> sender_type;
-  typedef typename sender_type::provider_type provider_type;
+  using sender_type = fixed_sender<TimerPolicy, SizeType>;
+  using provider_type = typename sender_type::provider_type;
 
   return std::make_shared<sender_type>(
     std::cref(socket), std::move(provider_type(std::move(data))));

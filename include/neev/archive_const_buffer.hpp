@@ -20,8 +20,8 @@ using archive_sender_ptr = std::shared_ptr<archive_sender<TimerPolicy, SizeType>
 template <class TimerPolicy, class SizeType, class Socket, class Archive>
 archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
-  typedef archive_sender<TimerPolicy, SizeType> sender_type;
-  typedef typename sender_type::provider_type provider_type;
+  using sender_type = archive_sender<TimerPolicy, SizeType>;
+  using provider_type = typename sender_type::provider_type;
 
   // The binary_oarchive is not portable across plateform, don't use it...
   // We use the text version instead.

@@ -32,7 +32,7 @@ struct event_slot<endpoint_failure>
   * The parameter is the reason of the failure.
   * If there is other endpoints, they'll be tested next.
   */
-  typedef void type(const std::string&);
+  using type = void(const std::string&);
 };
 
 template <>
@@ -40,7 +40,7 @@ struct event_slot<start_success>
 {
   /** Notify the success of the server start on the endpoint parameter.
   */
-  typedef void type(const boost::asio::ip::tcp::endpoint&);
+  using type = void(const boost::asio::ip::tcp::endpoint&);
 };
 
 template <>
@@ -48,7 +48,7 @@ struct event_slot<start_failure>
 {
   /** Notify that the server failed to start.
   */
-  typedef void type();
+  using type = void();
 };
 
 template <>
@@ -56,7 +56,7 @@ struct event_slot<run_exception>
 {
   /** Notify that an exception has occur while running the main loop.
   */
-  typedef void type(const std::exception&);
+  using type = void(const std::exception&);
 };
 
 template <>
@@ -65,7 +65,7 @@ struct event_slot<run_unknown_exception>
   /** Notify that an unknown exception has occur while running the main loop.
   * This event is called in a catch(...) statement.
   */
-  typedef void type();
+  using type = void();
 };
 
 template <>
@@ -73,7 +73,7 @@ struct event_slot<new_client>
 {
   /** Notify that a new client has been accepted.
   */
-  typedef void type(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
+  using type = void(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
 };
 
 struct server_events : 

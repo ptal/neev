@@ -16,15 +16,15 @@ class archive_mutable_buffer
 : private fixed_mutable_buffer<SizeType>
 {
 public:
-  typedef SizeType size_type;
-  typedef Archive data_type;
+  using size_type = SizeType;
+  using data_type = Archive;
 
 private:
-  typedef archive_mutable_buffer<data_type, size_type> this_type;
-  typedef fixed_mutable_buffer<size_type> base_type;
+  using this_type = archive_mutable_buffer<data_type, size_type>;
+  using base_type = fixed_mutable_buffer<size_type>;
 
 public:
-  typedef typename base_type::buffer_type buffer_type;
+  using buffer_type = typename base_type::buffer_type;
 
   archive_mutable_buffer(){}
 
@@ -79,8 +79,8 @@ using archive_receiver_ptr = std::shared_ptr<archive_receiver<Archive, TimerPoli
 template <class Archive, class TimerPolicy, class SizeType, class Socket>
 archive_receiver_ptr<Archive, TimerPolicy, SizeType> make_archive_receiver(const std::shared_ptr<Socket>& socket)
 {
-  typedef archive_receiver<Archive, TimerPolicy, SizeType> receiver_type;
-  typedef typename receiver_type::provider_type provider_type;
+  using receiver_type = archive_receiver<Archive, TimerPolicy, SizeType>;
+  using provider_type = typename receiver_type::provider_type;
 
   return std::make_shared<receiver_type>(std::cref(socket), provider_type());
 }

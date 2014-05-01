@@ -21,11 +21,11 @@ class shared_client :
 , public boost::noncopyable
 {
 private:
-  typedef boost::asio::ip::tcp::resolver resolver_type;
+  using resolver_type = boost::asio::ip::tcp::resolver;
 
 public:
-  typedef boost::asio::ip::tcp::socket socket_type;
-  typedef std::shared_ptr<socket_type> socket_ptr;
+  using socket_type = boost::asio::ip::tcp::socket;
+  using socket_ptr = std::shared_ptr<socket_type>;
 
   /** Build the client with a io_service, it doesn't launch anything.
   */
@@ -144,8 +144,8 @@ std::shared_ptr<shared_client> make_shared_client(boost::asio::io_service &io_se
 class client : public boost::noncopyable
 {
 public:
-  typedef boost::asio::ip::tcp::socket socket_type;
-  typedef std::shared_ptr<socket_type> socket_ptr;
+  using socket_type = boost::asio::ip::tcp::socket;
+  using socket_ptr = std::shared_ptr<socket_type>;
 
   client(boost::asio::io_service &io_service)
   : shared_client(detail::make_shared_client(io_service))

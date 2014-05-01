@@ -16,9 +16,9 @@ namespace neev{
 class server_mt : public basic_server
 {
 private:
-  typedef basic_server base_type;
-  typedef boost::asio::ip::tcp::socket socket_type;
-  typedef std::shared_ptr<socket_type> socket_ptr;
+  using base_type = basic_server;
+  using socket_type = boost::asio::ip::tcp::socket;
+  using socket_ptr = std::shared_ptr<socket_type>;
 
 public:
   server_mt(std::size_t pool_size);

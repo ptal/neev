@@ -28,7 +28,7 @@ struct event_slot<transfer_complete>
 {
   /** A function declaration with no argument, just to notify that the transfer is finished.
   */
-  typedef void type();
+  using type = void();
 };
 
 template <>
@@ -36,7 +36,7 @@ struct event_slot<transfer_error>
 {
   /** A function declaration that takes an error_code and is called if the transmission fails.
   */
-  typedef void type(const boost::system::error_code&);
+  using type = void(const boost::system::error_code&);
 };
 
 template <>
@@ -44,7 +44,7 @@ struct event_slot<transfer_on_going>
 {
   /** A function declaration that takes the bytes transferred and the bytes to transfer (total).
   */
-  typedef void type(std::size_t, std::size_t);
+  using type = void(std::size_t, std::size_t);
 };
 
 struct transfer_events;
@@ -52,7 +52,7 @@ struct transfer_events;
 template <>
 struct event_slot<chunk_complete>
 {
-  typedef void type(events_subscriber_view<transfer_events>);
+  using type = void(events_subscriber_view<transfer_events>);
 };
 
 struct transfer_events

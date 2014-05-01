@@ -26,13 +26,13 @@ struct transfer_error{};
 template <>
 struct event_slot<transfer_complete>
 {
-  typedef void type();
+  using type = type();
 };
 
 template <>
 struct event_slot<transfer_error>
 {
-  typedef void type(const boost::system::error_code&);
+  using type = type(const boost::system::error_code&);
 };
 
 // Create the event class, a simple typedef on events gathering

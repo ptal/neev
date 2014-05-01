@@ -25,7 +25,7 @@ struct event_slot<try_connecting_with_ip>
 {
   /** Notify that the client is trying to connect the server with a specific ip.
   */
-  typedef void type(const std::string&);
+  using type = void(const std::string&);
 };
 
 template <>
@@ -33,7 +33,7 @@ struct event_slot<connection_success>
 {
   /** Notify that the client is connected to the server with the socket passed in the arguments.
   */
-  typedef void type(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
+  using type = void(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
 };
 
 template <>
@@ -41,7 +41,7 @@ struct event_slot<connection_failure>
 {
   /** Notify that an error occurred and thus the client cannot connect to this server.
   */
-  typedef void type(const boost::system::error_code&);
+  using type = void(const boost::system::error_code&);
 };
 
 struct client_connection_events : 

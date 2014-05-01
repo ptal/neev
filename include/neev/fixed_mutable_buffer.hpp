@@ -15,17 +15,17 @@ class fixed_mutable_buffer
 : private basic_mutable_buffer
 {
 public:
-  typedef SizeType size_type;
+  using size_type = SizeType;
 
 private:
   using basic_mutable_buffer::init;
 
-  typedef fixed_mutable_buffer<size_type> this_type;
-  typedef basic_mutable_buffer base_type;
+  using this_type = fixed_mutable_buffer<size_type>;
+  using base_type = basic_mutable_buffer;
 
 public:
-  typedef base_type::buffer_type buffer_type;
-  typedef base_type::data_type data_type;
+  using buffer_type = base_type::buffer_type;
+  using data_type = base_type::data_type;
 
   fixed_mutable_buffer()
   : size_()
@@ -90,8 +90,8 @@ using fixed_receiver_ptr = std::shared_ptr<fixed_receiver<TimerPolicy, SizeType>
 template <class TimerPolicy, class SizeType, class Socket>
 fixed_receiver_ptr<TimerPolicy, SizeType> make_fixed_receiver(const std::shared_ptr<Socket>& socket)
 {
-  typedef fixed_receiver<TimerPolicy, SizeType> receiver_type;
-  typedef typename receiver_type::provider_type provider_type;
+  using receiver_type = fixed_receiver<TimerPolicy, SizeType>;
+  using provider_type = typename receiver_type::provider_type;
 
   return std::make_shared<receiver_type>(std::cref(socket), provider_type());
 }

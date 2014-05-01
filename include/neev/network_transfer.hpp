@@ -34,12 +34,12 @@ class network_transfer
 , public std::enable_shared_from_this<network_transfer<BufferProvider, TransferOp, TimerPolicy> >
 {
 public:
-  typedef boost::asio::ip::tcp::socket socket_type;
-  typedef std::shared_ptr<socket_type> socket_ptr;
-  typedef BufferProvider provider_type;
-  typedef network_transfer<provider_type, TransferOp, TimerPolicy> this_type;
-  typedef typename provider_type::buffer_type buffer_type;
-  typedef typename provider_type::data_type data_type;
+  using socket_type = boost::asio::ip::tcp::socket;
+  using socket_ptr = std::shared_ptr<socket_type>;
+  using provider_type = BufferProvider;
+  using this_type = network_transfer<provider_type, TransferOp, TimerPolicy>;
+  using buffer_type = typename provider_type::buffer_type;
+  using data_type = typename provider_type::data_type;
 
   network_transfer(const socket_ptr& socket, provider_type&& buffer_provider);
 

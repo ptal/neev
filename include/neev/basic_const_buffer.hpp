@@ -33,8 +33,8 @@ template <class BufferType = boost::asio::const_buffers_1>
 class basic_const_buffer : private boost::noncopyable
 {
 public:
-  typedef std::string data_type;
-  typedef BufferType buffer_type;
+  using data_type = std::string;
+  using buffer_type = BufferType;
 
   basic_const_buffer(data_type&& data)
   : data_(std::move(data))
@@ -80,8 +80,8 @@ using basic_sender_ptr = std::shared_ptr<basic_sender<TimerPolicy> >;
 template <class TimerPolicy, class Socket>
 basic_sender_ptr<TimerPolicy> make_basic_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
-  typedef basic_sender<TimerPolicy> sender_type;
-  typedef typename sender_type::provider_type provider_type;
+  using sender_type = basic_sender<TimerPolicy>;
+  using provider_type = typename sender_type::provider_type;
 
   return std::make_shared<sender_type>(
     std::cref(socket), provider_type(std::move(data)));

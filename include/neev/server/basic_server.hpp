@@ -24,10 +24,10 @@ class basic_server : boost::noncopyable
 {
 public:
   /// Type of the sockets created by this server.
-  typedef boost::asio::ip::tcp::socket socket_type;
+  using socket_type = boost::asio::ip::tcp::socket;
 
   /// Pointer type to the socket created by this server.
-  typedef std::shared_ptr<socket_type> socket_ptr;
+  using socket_ptr = std::shared_ptr<socket_type>;
 
 public:
   /** Initialize the server.

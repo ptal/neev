@@ -19,8 +19,8 @@ namespace neev{
 class basic_mutable_buffer : private boost::noncopyable
 {
 public:
-  typedef std::string data_type;
-  typedef boost::asio::mutable_buffers_1 buffer_type;
+  using data_type = std::string;
+  using buffer_type = boost::asio::mutable_buffers_1;
 
   basic_mutable_buffer(std::size_t n)
   : data_(n, 0)
@@ -80,8 +80,8 @@ using basic_receiver_ptr = std::shared_ptr<basic_receiver<TimerPolicy> >;
 template <class TimerPolicy, class Socket>
 basic_receiver_ptr<TimerPolicy> make_basic_receiver(const std::shared_ptr<Socket>& socket)
 {
-  typedef basic_receiver<TimerPolicy> receiver_type;
-  typedef typename receiver_type::provider_type provider_type;
+  using receiver_type = basic_receiver<TimerPolicy>;
+  using provider_type = typename receiver_type::provider_type;
 
   return std::make_shared<receiver_type>(
     std::cref(socket), provider_type());
