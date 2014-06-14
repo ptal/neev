@@ -83,74 +83,19 @@ private:
 #ifndef NEEV_EVENTS_HPP
 #define NEEV_EVENTS_HPP
 
-/** The maximum arguments number we can pass to the event slot.
-* Increase this if the slots take more than EVENT_LIMIT_ARG arguments.
-*/
-#ifndef EVENT_LIMIT_ARG
-  #define EVENT_LIMIT_ARG 8
-#endif
-
-#define EVENT_LIMIT_ARG_IMPL BOOST_PP_INC(EVENT_LIMIT_ARG)
-
-#include <neev/detail/event_type_selector.hpp>
+#include <neev/detail/events_set_impl.hpp>
 
 namespace neev{
-
-namespace detail {
-struct EmptyEvent;
-}
-
-#define MAKE_EMPTY_EVENT_TEMPLATE_LIST(z, count, unused) \
-  BOOST_PP_COMMA_IF(count)                               \
-  class EmptyEvent##count = detail::EmptyEvent
-
-#define MAKE_EMPTY_EVENT_CLASS_LIST(z, count, unused) \
-  BOOST_PP_COMMA_IF(count)                            \
-  detail::EmptyEvent
-
-#define MAKE_EVENT_TEMPLATE_LIST(z, count, unused) \
-  BOOST_PP_COMMA_IF(count)                         \
-  class Event##count
-
-#define MAKE_EVENT_CLASS_LIST(z, count, unused) \
-  BOOST_PP_COMMA_IF(count)                      \
-  Event##count
 
 /** Provides slot registration (with on_event) and event triggering (with signal_event)
 * for each events in the EventSequence.
 *
 * @see events_set_impl for a more detailled description of the methods.
 */
-template <class Event0, 
-  BOOST_PP_REPEAT(BOOST_PP_SUB(EVENT_LIMIT_ARG_IMPL,1), MAKE_EMPTY_EVENT_TEMPLATE_LIST, ~)
->
+template <class... Events>
 class events
+: public detail::events_set_impl<boost::mpl::set<Events...>>
 {};
-
-template <class Event0>
-class events<Event0,
- BOOST_PP_REPEAT(BOOST_PP_SUB(EVENT_LIMIT_ARG_IMPL,1), MAKE_EMPTY_EVENT_CLASS_LIST, ~)
->
-: public detail::event_type_selector<Event0>
-{};
-
-#define MAKE_EVENT_CLASS_DEF(z, n, unused)                                          \
-template <BOOST_PP_REPEAT(n, MAKE_EVENT_TEMPLATE_LIST, ~)>                          \
-class events<                                                                       \
-  BOOST_PP_REPEAT(n, MAKE_EVENT_CLASS_LIST, ~)                                      \
- ,BOOST_PP_REPEAT(BOOST_PP_SUB(EVENT_LIMIT_ARG_IMPL,n), MAKE_EMPTY_EVENT_CLASS_LIST, ~)  \
->                                                                                   \
-: public detail::events_set_impl<boost::mpl::set<                                   \
-    BOOST_PP_REPEAT(n, MAKE_EVENT_CLASS_LIST, ~)> >                                 \
-{};
-
-BOOST_PP_REPEAT_FROM_TO(2, EVENT_LIMIT_ARG_IMPL, MAKE_EVENT_CLASS_DEF, ~)
-
-#undef MAKE_EMPTY_EVENT_TEMPLATE_LIST
-#undef MAKE_EMPTY_EVENT_CLASS_LIST
-#undef MAKE_EVENT_TEMPLATE_LIST
-#undef MAKE_EVENT_CLASS_LIST
-#undef MAKE_EVENT_CLASS_DEF
 
 } // namespace neev
 

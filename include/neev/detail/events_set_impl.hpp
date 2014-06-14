@@ -16,11 +16,6 @@
 #include <boost/mpl/empty.hpp>
 #include <boost/mpl/erase.hpp>
 #include <boost/mpl/begin_end.hpp>
-#include <boost/preprocessor/repetition/repeat.hpp>
-#include <boost/preprocessor/repetition/enum_params.hpp>
-#include <boost/preprocessor/arithmetic/dec.hpp>
-#include <boost/preprocessor/arithmetic/inc.hpp>
-#include <boost/preprocessor/facilities/intercept.hpp>
 #include <boost/type_traits.hpp>
 #include <boost/utility.hpp>
 #include <boost/signals2.hpp>
@@ -79,51 +74,23 @@ public:
     return events_tail_.template on_event<Event>(slot_function, pos);
   }
 
-/** Boilerplate macros that help to select the nth arguments of the function slot and 
-* thus making the correct argument type.
-*/
-#define MAKE_ARG_PARAM_TYPE_IMPL(count) typename boost::function_traits<typename event_slot<Event>::type>::arg##count##_type
-#define MAKE_ARG_PARAM_TYPE(count) MAKE_ARG_PARAM_TYPE_IMPL(count)
-
-#define MAKE_EVENT_ARG(z, count, unused)    \
-  BOOST_PP_COMMA_IF(count)                  \
-  MAKE_ARG_PARAM_TYPE(BOOST_PP_INC(count))  \
-  arg##count
-
-/** signal_event is used to signal that an event occurs. In the same fashion than on_event, 
-* it recursively calls itself until the good event is found.
-*
-* Moreover, we need to create some functions overload that will takes exactly the number of
-* arguments needed by the slot function. BOOST_PP_REPEAT expands the SIGNAL_EVENT to
-* EVENT_LIMIT_ARG so we have N overloads of this function.
-* We also need to horizontally expand the argument and that's why we use the MAKE_EVENT_ARG
-* with a second BOOST_PP_REPEAT macro.
-*/
-#define SIGNAL_EVENT(z, n, unused)                        \
-  template <class Event>                                  \
-  typename boost::enable_if<                              \
-      boost::is_same<Event, event_type>                   \
-    , void                                                \
-  >::type signal_event(BOOST_PP_REPEAT(n, MAKE_EVENT_ARG,~)) \
-  {                                                       \
-    signal_(BOOST_PP_ENUM_PARAMS(n, arg));                \
-  }                                                       \
-                                                          \
-  template <class Event>                                  \
-  typename boost::disable_if<                             \
-      boost::is_same<Event, event_type>                   \
-    , void                                                \
-  >::type signal_event(BOOST_PP_REPEAT(n, MAKE_EVENT_ARG,~)) \
-  {                                                       \
-    events_tail_.template signal_event<Event>(BOOST_PP_ENUM_PARAMS(n, arg)); \
+  template <class Event, class... Args>
+  typename boost::enable_if<
+      boost::is_same<Event, event_type>
+    , void
+  >::type signal_event(Args... args)
+  {
+    signal_(args...);
   }
 
-BOOST_PP_REPEAT(EVENT_LIMIT_ARG, SIGNAL_EVENT, ~)
-
-#undef SIGNAL_EVENT
-#undef MAKE_EVENT_ARG
-#undef MAKE_ARG_PARAM_TYPE
-#undef MAKE_ARG_PARAM_TYPE_IMPL
+  template <class Event, class... Args>
+  typename boost::disable_if<
+      boost::is_same<Event, event_type>
+    , void
+  >::type signal_event(Args... args)
+  {
+    events_tail_.template signal_event<Event>(args...);
+  }
 
 private:
   /** The signal that will be triggered if the current event occurs.
