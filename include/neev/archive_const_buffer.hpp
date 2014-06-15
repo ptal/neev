@@ -21,7 +21,6 @@ template <class TimerPolicy, class SizeType, class Socket, class Archive>
 archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
   using sender_type = archive_sender<TimerPolicy, SizeType>;
-  using provider_type = typename sender_type::provider_type;
 
   // The binary_oarchive is not portable across plateform, don't use it...
   // We use the text version instead.
@@ -30,25 +29,25 @@ archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const std::shared_
   archive << data;
 
   return std::make_shared<sender_type>(
-    std::cref(socket), provider_type(archive_stream.str()));
+    std::cref(socket), archive_stream.str());
 }
 
 template <class TimerPolicy, class Archive, class Socket>
 archive_sender_ptr<TimerPolicy, std::uint32_t> make_archive32_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
-  return make_archive_sender<TimerPolicy, std::uint32_t>(socket, std::move(data));
+  return make_archive_sender<TimerPolicy, std::uint32_t>(socket, data);
 }
 
 template <class TimerPolicy, class Socket, class Archive>
 archive_sender_ptr<TimerPolicy, std::uint16_t> make_archive16_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
-  return make_archive_sender<TimerPolicy, std::uint16_t>(socket, std::move(data));
+  return make_archive_sender<TimerPolicy, std::uint16_t>(socket, data);
 }
 
 template <class TimerPolicy, class Socket, class Archive>
 archive_sender_ptr<TimerPolicy, std::uint8_t> make_archive8_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
 {
-  return make_archive_sender<TimerPolicy, std::uint8_t>(socket, std::move(data));
+  return make_archive_sender<TimerPolicy, std::uint8_t>(socket, data);
 }
 
 } // namespace neev

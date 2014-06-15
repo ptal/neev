@@ -42,10 +42,9 @@ class fixed_mutable_buffer
   , storage_()
   {}
 
-  fixed_mutable_buffer(fixed_mutable_buffer&& buf)
-  : storage_()
-  {}
-
+  fixed_mutable_buffer(fixed_mutable_buffer&&) = delete;
+  fixed_mutable_buffer& operator=(fixed_mutable_buffer&&) = delete;
+  
   fixed_mutable_buffer(const fixed_mutable_buffer&) = delete;
   fixed_mutable_buffer& operator=(const fixed_mutable_buffer&) = delete;
 
@@ -136,9 +135,8 @@ template <class TimerPolicy, class SizeType, class Socket>
 fixed_receiver_ptr<TimerPolicy, SizeType> make_fixed_receiver(const std::shared_ptr<Socket>& socket)
 {
   using receiver_type = fixed_receiver<TimerPolicy, SizeType>;
-  using provider_type = typename receiver_type::provider_type;
 
-  return std::make_shared<receiver_type>(std::cref(socket), provider_type());
+  return std::make_shared<receiver_type>(std::cref(socket));
 }
 
 template <class TimerPolicy, class Socket>

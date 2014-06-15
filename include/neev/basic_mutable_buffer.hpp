@@ -27,9 +27,8 @@ class basic_mutable_buffer
   : data_(n, 0)
   {}
 
-  basic_mutable_buffer(basic_mutable_buffer&& buf)
-  : data_(std::move(buf.data_))
-  {}
+  basic_mutable_buffer(basic_mutable_buffer&&) = delete;
+  basic_mutable_buffer& operator=(basic_mutable_buffer&&) = delete;
 
   basic_mutable_buffer(const basic_mutable_buffer&) = delete;
   basic_mutable_buffer& operator=(const basic_mutable_buffer&) = delete;
@@ -74,13 +73,12 @@ template <class TimerPolicy = no_timer>
 using basic_receiver_ptr = std::shared_ptr<basic_receiver<TimerPolicy> >;
 
 template <class TimerPolicy, class Socket>
-basic_receiver_ptr<TimerPolicy> make_basic_receiver(const std::shared_ptr<Socket>& socket)
+basic_receiver_ptr<TimerPolicy> make_basic_receiver(const std::shared_ptr<Socket>& socket, std::size_t data_size)
 {
   using receiver_type = basic_receiver<TimerPolicy>;
-  using provider_type = typename receiver_type::provider_type;
 
   return std::make_shared<receiver_type>(
-    std::cref(socket), provider_type());
+    std::cref(socket), data_size);
 }
 
 

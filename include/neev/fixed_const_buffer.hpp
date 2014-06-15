@@ -29,11 +29,9 @@ class fixed_const_buffer
   {
     assert(std::numeric_limits<prefix_type>::max() >= data_.size());
   }
-
-  fixed_const_buffer(fixed_const_buffer&& buf)
-  : data_(std::move(buf.data_))
-  , prefix_(buf.prefix_)
-  {}
+  
+  fixed_const_buffer(fixed_const_buffer&&) = delete;
+  fixed_const_buffer& operator=(fixed_const_buffer&&) = delete;
 
   fixed_const_buffer(const fixed_const_buffer&) = delete;
   fixed_const_buffer& operator=(const fixed_const_buffer&) = delete;
@@ -85,10 +83,9 @@ template <class TimerPolicy, class SizeType, class Socket>
 fixed_sender_ptr<TimerPolicy, SizeType> make_fixed_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
 {
   using sender_type = fixed_sender<TimerPolicy, SizeType>;
-  using provider_type = typename sender_type::provider_type;
 
   return std::make_shared<sender_type>(
-    std::cref(socket), std::move(provider_type(std::move(data))));
+    std::cref(socket), std::move(data));
 }
 
 template <class TimerPolicy, class Socket>

@@ -41,10 +41,11 @@ public:
   using buffer_type = typename provider_type::buffer_type;
   using data_type = typename provider_type::data_type;
 
-  network_transfer(const socket_ptr& socket, provider_type&& buffer_provider)
+  template <class... BufferProviderArgs>
+  network_transfer(const socket_ptr& socket, BufferProviderArgs&&... args)
   : TimerPolicy(socket->get_io_service())
   , socket_(socket)
-  , buffer_provider_(std::move(buffer_provider))
+  , buffer_provider_(std::forward<BufferProviderArgs>(args)...)
   , bytes_transferred_(0)
   { 
     BOOST_ASSERT_MSG(static_cast<bool>(socket), 

@@ -51,7 +51,7 @@ archive_receiver_ptr<Archive, TimerPolicy, SizeType> make_archive_receiver(const
   using receiver_type = archive_receiver<Archive, TimerPolicy, SizeType>;
   using provider_type = typename receiver_type::provider_type;
 
-  return std::make_shared<receiver_type>(std::cref(socket), provider_type());
+  return std::make_shared<receiver_type>(std::cref(socket));
 }
 
 template <class Archive, class TimerPolicy, class Socket>

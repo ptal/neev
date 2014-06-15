@@ -26,10 +26,9 @@ class basic_const_buffer
   : data_(std::move(data))
   {}
 
-  basic_const_buffer(basic_const_buffer&& buf)
-  : data_(std::move(buf.data_))
-  {}
-
+  basic_const_buffer(basic_const_buffer&&) = delete;
+  basic_const_buffer& operator=(basic_const_buffer&&) = delete;
+  
   basic_const_buffer(const basic_const_buffer&) = delete;
   basic_const_buffer& operator=(const basic_const_buffer&) = delete;
 
