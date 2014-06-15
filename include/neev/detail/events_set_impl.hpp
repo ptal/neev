@@ -78,18 +78,18 @@ public:
   typename boost::enable_if<
       boost::is_same<Event, event_type>
     , void
-  >::type signal_event(Args... args)
+  >::type signal_event(Args&&... args)
   {
-    signal_(args...);
+    signal_(std::forward<Args>(args)...);
   }
 
   template <class Event, class... Args>
   typename boost::disable_if<
       boost::is_same<Event, event_type>
     , void
-  >::type signal_event(Args... args)
+  >::type signal_event(Args&&... args)
   {
-    events_tail_.template signal_event<Event>(args...);
+    events_tail_.template signal_event<Event>(std::forward<Args>(args)...);
   }
 
 private:
@@ -115,14 +115,16 @@ public:
   template <class Event>
   boost::signals2::connection on_event(...)
   {
-    BOOST_STATIC_ASSERT_MSG(sizeof(Event) == 0, "** You are trying to record a slot for an unknown event. **");
+    BOOST_STATIC_ASSERT_MSG(sizeof(Event) == 0, 
+      "** You are trying to record a slot for an unknown event. **");
     return boost::signals2::connection();
   }
 
   template <class Event>
   void signal_event(...)
   {
-    BOOST_STATIC_ASSERT_MSG(sizeof(Event) == 0, "** You are trying to signal an event that is not registered. **");
+    BOOST_STATIC_ASSERT_MSG(sizeof(Event) == 0, 
+      "** You are trying to signal an event that is not registered. **");
   }
 };
 

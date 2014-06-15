@@ -69,6 +69,7 @@ class fixed_mutable_buffer
       default:
         BOOST_ASSERT_MSG(false, 
           "fixed_mutable_buffer::next_chunk: Invalid status.");
+        return boost::optional<std::size_t>();
     }
   }
 
@@ -83,6 +84,7 @@ class fixed_mutable_buffer
       default:
         BOOST_ASSERT_MSG(false, 
           "fixed_mutable_buffer::next_chunk: Invalid status.");
+        return 0;
     }
   }
 
@@ -107,6 +109,7 @@ class fixed_mutable_buffer
       default:
         BOOST_ASSERT_MSG(false, 
           "fixed_mutable_buffer::next_chunk: Invalid status.");
+        return buffer_type(nullptr, 0);
     }
   }
 
