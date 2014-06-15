@@ -67,7 +67,8 @@ class fixed_mutable_buffer
       case DATA_CHUNK:
         return sizeof(prefix_type) + storage_.data_.size();
       default:
-        assert(false);
+        BOOST_ASSERT_MSG(false, 
+          "fixed_mutable_buffer::next_chunk: Invalid status.");
     }
   }
 
@@ -80,7 +81,8 @@ class fixed_mutable_buffer
       case DATA_CHUNK:
         return storage_.data_.size();
       default:
-        assert(false);
+        BOOST_ASSERT_MSG(false, 
+          "fixed_mutable_buffer::next_chunk: Invalid status.");
     }
   }
 
@@ -103,7 +105,8 @@ class fixed_mutable_buffer
       case DATA_CHUNK:
         return boost::asio::buffer(&storage_.data_[0], storage_.data_.size());
       default:
-        assert(false);
+        BOOST_ASSERT_MSG(false, 
+          "fixed_mutable_buffer::next_chunk: Invalid status.");
     }
   }
 

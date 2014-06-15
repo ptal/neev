@@ -58,7 +58,12 @@ class basic_mutable_buffer
     return boost::asio::buffer(&data_[0], data_.size());
   }
 
-  void next_chunk() const {}
+  void next_chunk() const
+  {
+    BOOST_ASSERT_MSG(false, 
+      "basic_mutable_buffer::next_chunk: Should not be called "
+      "(only 1 chunk in this buffer).");
+  }
 
   data_type& data() { return data_; }
 

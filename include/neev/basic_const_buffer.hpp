@@ -28,7 +28,7 @@ class basic_const_buffer
 
   basic_const_buffer(basic_const_buffer&&) = delete;
   basic_const_buffer& operator=(basic_const_buffer&&) = delete;
-  
+
   basic_const_buffer(const basic_const_buffer&) = delete;
   basic_const_buffer& operator=(const basic_const_buffer&) = delete;
 
@@ -57,7 +57,12 @@ class basic_const_buffer
     return boost::asio::buffer(data_);
   }
 
-  void next_chunk() const {}
+  void next_chunk() const
+  {
+    BOOST_ASSERT_MSG(false, 
+      "basic_const_buffer::next_chunk: Should not be called "
+      "(only 1 chunk in this buffer).");
+  }
 
   const data_type& data() const { return data_; }
 

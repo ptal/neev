@@ -27,7 +27,9 @@ class fixed_const_buffer
   : data_(std::move(data))
   , prefix_(hton(static_cast<prefix_type>(data_.size())))
   {
-    assert(std::numeric_limits<prefix_type>::max() >= data_.size());
+    BOOST_ASSERT_MSG(std::numeric_limits<prefix_type>::max() >= data_.size(),
+      "fixed_const_buffer: Try to send data which size is too large "
+      "(choose a larger prefix type).");
   }
   
   fixed_const_buffer(fixed_const_buffer&&) = delete;
@@ -56,7 +58,12 @@ class fixed_const_buffer
     return false;
   }
 
-  void next_chunk() const {}
+  void next_chunk() const
+  {
+    BOOST_ASSERT_MSG(false, 
+      "fixed_const_buffer::next_chunk: Should not be called "
+      "(only 1 chunk in this buffer).");
+  }
 
   buffer_type chunk() const
   {
