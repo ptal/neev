@@ -10,75 +10,120 @@
 
 namespace neev{
 
-template <class SizeType = std::uint32_t>
+template <class PrefixType = std::uint32_t>
 class fixed_mutable_buffer
-: private basic_mutable_buffer
 {
-public:
-  using size_type = SizeType;
+ public:
+  using data_type = std::string;
+  using prefix_type = PrefixType;
+  using buffer_type = boost::asio::mutable_buffers_1;
+ 
+ private:
+  enum status
+  {
+    PREFIX_CHUNK,
+    DATA_CHUNK
+  };
 
-private:
-  using basic_mutable_buffer::init;
+  union storage
+  {
+    prefix_type prefix_;
+    data_type data_;
+    storage() : prefix_(0) {}
+    ~storage() {}
+  };
 
-  using this_type = fixed_mutable_buffer<size_type>;
-  using base_type = basic_mutable_buffer;
-
-public:
-  using buffer_type = base_type::buffer_type;
-  using data_type = base_type::data_type;
+ public:
+  static_assert(std::is_unsigned<prefix_type>::value, 
+    "The buffer size will never be negative.");
 
   fixed_mutable_buffer()
-  : size_()
+  : status_(PREFIX_CHUNK)
+  , storage_()
   {}
 
   fixed_mutable_buffer(fixed_mutable_buffer&& buf)
-  : base_type(std::move(buf))
-  , size_(std::move(buf.size_))
-  , on_size_read_(std::move(buf.on_size_read_))
+  : storage_()
   {}
 
-  void init(events_subscriber_view<transfer_events> events)
+  fixed_mutable_buffer(const fixed_mutable_buffer&) = delete;
+  fixed_mutable_buffer& operator=(const fixed_mutable_buffer&) = delete;
+
+  ~fixed_mutable_buffer()
   {
-    this->buffer_ = buffer_type(reinterpret_cast<char*>(&size_), sizeof(size_));
-    on_size_read_ = events.on_event<chunk_complete>(
-      boost::bind(&this_type::continue_with_data, this, _1));
+    if(status_ == DATA_CHUNK)
+    {
+      storage_.data_.~data_type();
+    }
   }
 
-  // base().bytes_to_transfer() will returned 0 before we read the size.
-  std::size_t bytes_to_transfer() const
+// !!!!! If iterator, problem to use the status now... or to update the size.
+  // If the full-size is not known, return nullopt.
+  boost::optional<std::size_t> size() const
   {
-    return sizeof(size_type) + base().bytes_to_transfer();
+    switch(status_)
+    {
+      case PREFIX_CHUNK:
+        return boost::optional<std::size_t>();
+      case DATA_CHUNK:
+        return sizeof(prefix_type) + storage_.data_.size();
+      default:
+        assert(false);
+    }
   }
 
-  bool is_complete(std::size_t bytes_transferred) const
+  std::size_t chunk_size() const
   {
-    return bytes_to_transfer() == bytes_transferred;
+    switch(status_)
+    {
+      case PREFIX_CHUNK:
+        return sizeof(prefix_type);
+      case DATA_CHUNK:
+        return storage_.data_.size();
+      default:
+        assert(false);
+    }
   }
 
-  data_type& data() { return base().data(); }
-  const data_type& data() const { return base().data(); }
-
-  buffer_type buffer() const { return base().buffer(); }
-
-private:
-  /** This is an event handler that is called when the first chunk is read.
-  * We can read the metadata before we get the payload and thus know how much
-  * data there are to read.
-  */
-  void continue_with_data(events_subscriber_view<transfer_events> events)
+  bool is_chunk_complete(std::size_t) const
   {
-    // On the next chunk we won't need to process more data.
-    on_size_read_.disconnect();
-    size_ = ntoh(size_);
-    // Dynamically updates buffer and bytes to transfer.
-    init(size_, events);
+    return false;
   }
 
-  base_type& base() { return *static_cast<base_type*>(this); }
-  const base_type& base() const { return *static_cast<const base_type*>(this); }
+  bool has_next_chunk() const
+  {
+    return status_ != DATA_CHUNK;
+  }
 
-  size_type size_;
-  boost::signals2::connection on_size_read_;
+  buffer_type chunk()
+  {
+    switch(status_)
+    {
+      case PREFIX_CHUNK:
+        return boost::asio::buffer(reinterpret_cast<char*>(&storage_.prefix_), sizeof(prefix_type));
+      case DATA_CHUNK:
+        return boost::asio::buffer(&storage_.data_[0], storage_.data_.size());
+      default:
+        assert(false);
+    }
+  }
+
+  // Post: No effect if there is no next chunk.
+  void next_chunk()
+  {
+    if(status_ == PREFIX_CHUNK)
+    {
+      prefix_type prefix = ntoh(storage_.prefix_);
+      new (&storage_.data_) data_type(prefix, 0);
+      status_ = DATA_CHUNK;
+    }
+  }
+
+  data_type& data() { return storage_.data_; }
+
+ private:
+  status status_;
+  storage storage_;
 };
 
 template <class TimerPolicy, class SizeType>
@@ -113,7 +158,6 @@ fixed_receiver_ptr<TimerPolicy, std::uint8_t> make_fixed8_receiver(const std::sh
 {
   return make_fixed_receiver<TimerPolicy, std::uint8_t>(socket);
 }
-
 
 } // namespace neev
 

@@ -12,6 +12,7 @@
 #include <neev/events.hpp>
 #include <neev/events_subscriber_view.hpp>
 #include <boost/system/error_code.hpp>
+#include <boost/optional.hpp>
 
 namespace neev{
 
@@ -21,7 +22,6 @@ struct transfer_error{};
 /** Use this event to track the transmission process.
 */
 struct transfer_on_going{};
-struct chunk_complete{}; // Useful to launch the next op.
 
 template <>
 struct event_slot<transfer_complete>
@@ -44,22 +44,15 @@ struct event_slot<transfer_on_going>
 {
   /** A function declaration that takes the bytes transferred and the bytes to transfer (total).
   */
-  using type = void(std::size_t, std::size_t);
+  using type = void(std::size_t, boost::optional<std::size_t>);
 };
 
 struct transfer_events;
 
-template <>
-struct event_slot<chunk_complete>
-{
-  using type = void(events_subscriber_view<transfer_events>);
-};
-
 struct transfer_events
 : events<transfer_complete
        , transfer_error
-       , transfer_on_going
-       , chunk_complete>
+       , transfer_on_going>
 {};
 
 } // namespace neev

@@ -11,63 +11,32 @@
 
 namespace neev{
 
-template <class Archive, class SizeType = std::uint32_t>
+template <class Archive, class PrefixType = std::uint32_t>
 class archive_mutable_buffer
-: private fixed_mutable_buffer<SizeType>
+: private fixed_mutable_buffer<PrefixType>
 {
+  using fixed_buffer_type = fixed_mutable_buffer<PrefixType>;
 public:
-  using size_type = SizeType;
   using data_type = Archive;
+  using prefix_type = PrefixType;
+  using buffer_type = typename fixed_buffer_type::buffer_type;
 
-private:
-  using this_type = archive_mutable_buffer<data_type, size_type>;
-  using base_type = fixed_mutable_buffer<size_type>;
+  using fixed_buffer_type::fixed_buffer_type;
+  using fixed_buffer_type::has_next_chunk;
+  using fixed_buffer_type::next_chunk;
+  using fixed_buffer_type::chunk;
+  using fixed_buffer_type::is_chunk_complete;
+  using fixed_buffer_type::size;
+  using fixed_buffer_type::chunk_size;
 
-public:
-  using buffer_type = typename base_type::buffer_type;
-
-  archive_mutable_buffer(){}
-
-  archive_mutable_buffer(archive_mutable_buffer&& buf)
-  : base_type(std::move(buf))
-  {}
-
-  void init(events_subscriber_view<transfer_events> events)
+  data_type data()
   {
-    base().init(events);
-    events.on_event<transfer_complete>(
-      boost::bind(&this_type::convert_data, this),
-      boost::signals2::at_front);
-  }
-
-  // base().bytes_to_transfer() will returned 0 before we read the size.
-  std::size_t bytes_to_transfer() const
-  {
-    return base().bytes_to_transfer();
-  }
-
-  bool is_complete(std::size_t bytes_transferred) const
-  {
-    return base().is_complete(bytes_transferred);
-  }
-
-  data_type& data() { return data_; }
-  const data_type& data() const { return data_; }
-
-  buffer_type buffer() const { return base().buffer(); }
-
-private:
-  void convert_data()
-  {
-    std::istringstream archive_stream(base().data());
+    data_type unarchived_data;
+    std::istringstream archive_stream(fixed_buffer_type::data());
     boost::archive::text_iarchive archive(archive_stream);
-    archive >> data_;
+    archive >> unarchived_data;
+    return unarchived_data;
   }
-
-  base_type& base() { return *static_cast<base_type*>(this); }
-  const base_type& base() const { return *static_cast<const base_type*>(this); }
-
-  data_type data_;
 };
 
 template <class Archive, class TimerPolicy, class SizeType>

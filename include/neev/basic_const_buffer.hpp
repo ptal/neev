@@ -14,68 +14,63 @@
 #include <string>
 #include <cstdint>
 
+
 namespace neev{
-namespace detail{
-  template <class Buffer>
-  void push_or_set(std::vector<Buffer>& v, const Buffer& buf)
-  {
-    v.push_back(buf);
-  }
-  
-  template <class Buffer>
-  void push_or_set(Buffer& v, const Buffer& buf)
-  {
-    v = buf;
-  }
-} // namespace detail
-
-template <class BufferType = boost::asio::const_buffers_1>
-class basic_const_buffer : private boost::noncopyable
+class basic_const_buffer
 {
-public:
+ public:
   using data_type = std::string;
-  using buffer_type = BufferType;
+  using buffer_type = boost::asio::const_buffers_1;
 
-  basic_const_buffer(data_type&& data)
+  explicit basic_const_buffer(data_type&& data)
   : data_(std::move(data))
   {}
 
   basic_const_buffer(basic_const_buffer&& buf)
-  : buffer_(std::move(buf.buffer_))
-  , data_(std::move(buf.data_))
+  : data_(std::move(buf.data_))
   {}
 
-  void init(events_subscriber_view<transfer_events>)
+  basic_const_buffer(const basic_const_buffer&) = delete;
+  basic_const_buffer& operator=(const basic_const_buffer&) = delete;
+
+  boost::optional<std::size_t> size() const
   {
-    detail::push_or_set(buffer_, boost::asio::buffer(data_));
+    return data_.size();
   }
 
-  std::size_t bytes_to_transfer() const
+  std::size_t chunk_size() const
   {
-    return boost::asio::buffer_size(buffer_);
+    return *size();
   }
 
-  bool is_complete(std::size_t bytes_transferred) const
+  bool is_chunk_complete(std::size_t) const
   {
-    return bytes_transferred == bytes_to_transfer();
+    return false;
   }
 
-  data_type& data() { return data_; }
+  bool has_next_chunk() const
+  {
+    return false;
+  }
+  
+  buffer_type chunk() const
+  {
+    return boost::asio::buffer(data_);
+  }
+
+  void next_chunk() const {}
+
   const data_type& data() const { return data_; }
 
-  buffer_type buffer() const { return buffer_; }
-
-protected:
-  buffer_type buffer_;
-private:
+ private:
   data_type data_;
 };
 
 template <class TimerPolicy = no_timer>
-using basic_sender = network_transfer<basic_const_buffer<>, send_transfer, TimerPolicy>;
+using basic_sender = network_transfer<basic_const_buffer, send_transfer, TimerPolicy>;
 
 template <class TimerPolicy = no_timer>
-using basic_sender_ptr = std::shared_ptr<basic_sender<TimerPolicy> >;
+using basic_sender_ptr = std::shared_ptr<basic_sender<TimerPolicy>>;
 
 template <class TimerPolicy, class Socket>
 basic_sender_ptr<TimerPolicy> make_basic_sender(const std::shared_ptr<Socket>& socket, std::string&& data)

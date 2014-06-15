@@ -7,59 +7,72 @@
 #define NEEV_FIXED_CONST_BUFFER_HPP
 
 #include <neev/basic_const_buffer.hpp>
+#include <limits>
+#include <array>
 
 namespace neev{
 
-template <class SizeType = std::uint32_t>
+template <class PrefixType = std::uint32_t>
 class fixed_const_buffer
-: private basic_const_buffer<std::vector<boost::asio::const_buffers_1> >
 {
-public:
-  using size_type = SizeType;
+ public:
   using data_type = std::string;
-  using buffer_type = std::vector<boost::asio::const_buffers_1>;
+  using prefix_type = PrefixType;
+  using buffer_type = std::array<boost::asio::const_buffers_1, 2>;
 
-private:
-  using base_type = basic_const_buffer<buffer_type>;
+  static_assert(std::is_unsigned<prefix_type>::value, 
+    "The buffer size will never be negative.");
 
-public:
   fixed_const_buffer(data_type&& data)
-  : base_type(std::move(data))
+  : data_(std::move(data))
+  , prefix_(hton(static_cast<prefix_type>(data_.size())))
+  {
+    assert(std::numeric_limits<prefix_type>::max() >= data_.size());
+  }
+
+  fixed_const_buffer(fixed_const_buffer&& buf)
+  : data_(std::move(buf.data_))
+  , prefix_(buf.prefix_)
   {}
 
-  fixed_const_buffer(fixed_const_buffer&& fcb)
-  : base_type(std::move(fcb))
-  , size_(std::move(fcb.size_))
-  {}
+  fixed_const_buffer(const fixed_const_buffer&) = delete;
+  fixed_const_buffer& operator=(const fixed_const_buffer&) = delete;
 
-  void init(events_subscriber_view<transfer_events> events)
+  boost::optional<std::size_t> size() const
   {
-    size_ = hton(static_cast<size_type>(data().size()));
-    this->buffer_.push_back(
-      boost::asio::buffer(reinterpret_cast<const char*>(&size_), sizeof(size_)));
-    base().init(events);
+    return data_.size() + sizeof(prefix_);
   }
 
-  std::size_t bytes_to_transfer() const
+  std::size_t chunk_size() const
   {
-    return base().bytes_to_transfer();
+    return *size();
   }
 
-  bool is_complete(std::size_t bytes_transferred) const
+  bool is_chunk_complete(std::size_t) const
   {
-    return bytes_to_transfer() == bytes_transferred;
+    return false;
   }
 
-  data_type& data() { return base().data(); }
-  const data_type& data() const { return base().data(); }
+  bool has_next_chunk() const
+  {
+    return false;
+  }
 
-  buffer_type buffer() const { return base().buffer(); }
+  void next_chunk() const {}
 
-private:
-  base_type& base() { return *static_cast<base_type*>(this); }
-  const base_type& base() const { return *static_cast<const base_type*>(this); }
-  
-  size_type size_;
+  buffer_type chunk() const
+  {
+    return buffer_type{
+      boost::asio::buffer(reinterpret_cast<const char*>(&prefix_), sizeof(prefix_)),
+      boost::asio::buffer(data_)
+    };
+  }
+
+  const data_type& data() const { return data_; }
+
+ private:
+  data_type data_;
+  prefix_type prefix_;
 };
 
 template <class TimerPolicy, class SizeType>

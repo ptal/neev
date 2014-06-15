@@ -16,59 +16,55 @@
 
 namespace neev{
 
-class basic_mutable_buffer : private boost::noncopyable
+
+class basic_mutable_buffer
 {
-public:
+ public:
   using data_type = std::string;
   using buffer_type = boost::asio::mutable_buffers_1;
 
-  basic_mutable_buffer(std::size_t n)
+  explicit basic_mutable_buffer(std::size_t n)
   : data_(n, 0)
-  , buffer_(nullptr, 0)
   {}
 
   basic_mutable_buffer(basic_mutable_buffer&& buf)
   : data_(std::move(buf.data_))
-  , buffer_(std::move(buf.buffer_))
   {}
 
-  void init(events_subscriber_view<transfer_events>)
-  {
-    buffer_ = buffer_type(&data_[0], data_.size());
-  }
+  basic_mutable_buffer(const basic_mutable_buffer&) = delete;
+  basic_mutable_buffer& operator=(const basic_mutable_buffer&) = delete;
 
-  std::size_t bytes_to_transfer() const
+  boost::optional<std::size_t> size() const
   {
     return data_.size();
   }
 
-  bool is_complete(std::size_t bytes_transferred) const
+  std::size_t chunk_size() const
   {
-    return bytes_transferred == bytes_to_transfer();
+    return *size();
   }
+
+  bool is_chunk_complete(std::size_t) const
+  {
+    return false;
+  }
+
+  bool has_next_chunk() const
+  {
+    return false;
+  }
+  
+  buffer_type chunk()
+  {
+    return boost::asio::buffer(&data_[0], data_.size());
+  }
+
+  void next_chunk() const {}
 
   data_type& data() { return data_; }
-  const data_type& data() const { return data_; }
 
-  buffer_type buffer() const { return buffer_; }
-
-private:
+ private:
   data_type data_;
-
-protected:
-  // Useful to delay the construction.
-  basic_mutable_buffer()
-  : data_()
-  , buffer_(nullptr, 0)
-  {}
-
-  void init(std::size_t n, events_subscriber_view<transfer_events> events)
-  {
-    data_.resize(n);
-    init(events);
-  }
-
-  buffer_type buffer_;
 };
 
 template <class TimerPolicy = no_timer>
