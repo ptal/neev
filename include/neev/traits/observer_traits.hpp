@@ -16,15 +16,15 @@ struct events
 : boost::mpl::set<Events...>
 {};
 
-template <class Subscriber>
-struct subscriber_traits
+template <class Observer>
+struct observer_traits
 {
-  using events_type = typename Subscriber::events_type;
+  using events_type = typename Observer::events_type;
 };
 
 template <class Observer, typename Event, 
   bool must_call = boost::mpl::contains<
-    typename subscriber_traits<Observer>::events_type,
+    typename observer_traits<Observer>::events_type,
     Event>::type::value>
 struct event_dispatcher
 {

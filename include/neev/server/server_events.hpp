@@ -9,7 +9,7 @@
 #ifndef NEEV_SERVER_EVENTS_HPP
 #define NEEV_SERVER_EVENTS_HPP
 
-#include <neev/traits/subscriber_traits.hpp>
+#include <neev/traits/observer_traits.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/shared_ptr.hpp>
