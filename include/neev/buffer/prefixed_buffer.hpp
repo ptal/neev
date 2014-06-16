@@ -22,31 +22,29 @@ class prefixed_send_buffer;
 template <class PrefixType>
 class prefixed_receive_buffer;
 
-template <class PrefixType, class TransferKind>
+template <class PrefixType, class TransferCategory>
 struct prefixed_buffer;
 
 template <class PrefixType>
 struct prefixed_buffer<PrefixType, send_op>
 {
   using type = prefixed_send_buffer<PrefixType>;
-  using transfer_type = send_op;
 };
 
 template <class PrefixType>
 struct prefixed_buffer<PrefixType, receive_op>
 {
   using type = prefixed_receive_buffer<PrefixType>;
-  using transfer_type = receive_op;
 };
 
-template <class TransferKind>
-using prefixed8_buffer = prefixed_buffer<std::uint8_t, TransferKind>;
+template <class TransferCategory>
+using prefixed8_buffer = prefixed_buffer<std::uint8_t, TransferCategory>;
 
-template <class TransferKind>
-using prefixed16_buffer = prefixed_buffer<std::uint16_t, TransferKind>;
+template <class TransferCategory>
+using prefixed16_buffer = prefixed_buffer<std::uint16_t, TransferCategory>;
 
-template <class TransferKind>
-using prefixed32_buffer = prefixed_buffer<std::uint32_t, TransferKind>;
+template <class TransferCategory>
+using prefixed32_buffer = prefixed_buffer<std::uint32_t, TransferCategory>;
 
 template <class PrefixType>
 class prefixed_send_buffer
@@ -55,6 +53,7 @@ class prefixed_send_buffer
   using data_type = std::string;
   using prefix_type = PrefixType;
   using buffer_type = std::array<boost::asio::const_buffers_1, 2>;
+  using transfer_category = send_op;
 
   static_assert(std::is_unsigned<prefix_type>::value, 
     "The buffer size will never be negative.");
@@ -123,6 +122,7 @@ class prefixed_receive_buffer
   using data_type = std::string;
   using prefix_type = PrefixType;
   using buffer_type = boost::asio::mutable_buffers_1;
+  using transfer_category = receive_op;
  
  private:
   enum status

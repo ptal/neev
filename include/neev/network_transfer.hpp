@@ -21,10 +21,10 @@
 
 namespace neev{
 
-template <class BufferProvider, class Observer, class TransferType, class TimerPolicy = no_timer>
+template <class BufferProvider, class Observer, class TimerPolicy = no_timer>
 class network_transfer
 : private TimerPolicy
-, public std::enable_shared_from_this<network_transfer<BufferProvider, Observer, TransferType, TimerPolicy>>
+, public std::enable_shared_from_this<network_transfer<BufferProvider, Observer, TimerPolicy>>
 {
 public:
   using socket_type = boost::asio::ip::tcp::socket;
@@ -33,9 +33,9 @@ public:
   using buffer_type = typename provider_type::buffer_type;
   using data_type = typename provider_type::data_type;
   using observer_type = Observer;
-  using transfer_type = TransferType;
   using timer_policy = TimerPolicy;
-  using this_type = network_transfer<provider_type, observer_type, transfer_type, timer_policy>;
+  using transfer_category = typename BufferProvider::transfer_category;
+  using this_type = network_transfer<provider_type, observer_type, timer_policy>;
 
   template <class... BufferProviderArgs>
   network_transfer(const socket_ptr& socket, observer_type&& observer, BufferProviderArgs&&... args)
@@ -93,7 +93,7 @@ public:
 private:
   void async_transfer_impl()
   {
-    transfer<transfer_type>::async_transfer(*socket_
+    transfer<transfer_category>::async_transfer(*socket_
     , buffer_provider_.chunk()
     , boost::bind(&this_type::is_transfer_complete, this->shared_from_this()
       , boost::asio::placeholders::error
@@ -174,7 +174,6 @@ std::shared_ptr<
   network_transfer<
     typename BufferTraits::type, 
     Observer,
-    typename BufferTraits::transfer_type,
     TimerPolicy>>
 make_transfer(const std::shared_ptr<Socket>& socket, Observer&& observer, BufferArgs&&... args)
 {
@@ -182,7 +181,6 @@ make_transfer(const std::shared_ptr<Socket>& socket, Observer&& observer, Buffer
     network_transfer<
       typename BufferTraits::type, 
       Observer,
-      typename BufferTraits::transfer_type,
       TimerPolicy>>(
     std::cref(socket), std::forward<Observer>(observer), std::forward<BufferArgs>(args)...);
 }

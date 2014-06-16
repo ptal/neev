@@ -18,31 +18,29 @@ class archive_send_buffer;
 template <class Archive, class PrefixType>
 class archive_receive_buffer;
 
-template <class Archive, class PrefixType, class TransferKind>
+template <class Archive, class PrefixType, class TransferCategory>
 struct archive_buffer;
 
 template <class Archive, class PrefixType>
 struct archive_buffer<Archive, PrefixType, send_op>
 {
   using type = archive_send_buffer<Archive, PrefixType>;
-  using transfer_type = send_op;
 };
 
 template <class PrefixType>
 struct archive_buffer<Archive, PrefixType, receive_op>
 {
   using type = archive_receive_buffer<Archive, PrefixType>;
-  using transfer_type = receive_op;
 };
 
-template <class Archive, class TransferKind>
-using archive8_buffer = prefixed_buffer<Archive, std::uint8_t, TransferKind>;
+template <class Archive, class TransferCategory>
+using archive8_buffer = prefixed_buffer<Archive, std::uint8_t, TransferCategory>;
 
-template <class Archive, class TransferKind>
-using archive16_buffer = prefixed_buffer<Archive, std::uint16_t, TransferKind>;
+template <class Archive, class TransferCategory>
+using archive16_buffer = prefixed_buffer<Archive, std::uint16_t, TransferCategory>;
 
-template <class Archive, class TransferKind>
-using archive32_buffer = prefixed_buffer<Archive, std::uint32_t, TransferKind>;
+template <class Archive, class TransferCategory>
+using archive32_buffer = prefixed_buffer<Archive, std::uint32_t, TransferCategory>;
 
 template <class Archive, class PrefixType>
 class archive_receive_buffer
@@ -53,6 +51,7 @@ public:
   using data_type = Archive;
   using prefix_type = PrefixType;
   using buffer_type = typename prefixed_buffer_type::buffer_type;
+  using transfer_category = receive_op;
 
   using prefixed_buffer_type::prefixed_buffer_type;
   using prefixed_buffer_type::has_next_chunk;
@@ -81,6 +80,7 @@ public:
   using data_type = Archive;
   using prefix_type = PrefixType;
   using buffer_type = typename prefixed_buffer_type::buffer_type;
+  using transfer_category = send_op;
 
   archive_send_buffer(const data_type& data)
   : prefixed_buffer_type(make_archive(data))

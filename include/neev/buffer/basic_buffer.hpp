@@ -18,21 +18,19 @@ namespace neev{
 class basic_send_buffer;
 class basic_receive_buffer;
 
-template <class TransferKind>
+template <class TransferCategory>
 struct basic_buffer;
 
 template <>
 struct basic_buffer<send_op>
 {
   using type = basic_send_buffer;
-  using transfer_type = send_op;
 };
 
 template <>
 struct basic_buffer<receive_op>
 {
   using type = basic_receive_buffer;
-  using transfer_type = receive_op;
 };
 
 class basic_send_buffer
@@ -40,6 +38,7 @@ class basic_send_buffer
  public:
   using data_type = std::string;
   using buffer_type = boost::asio::const_buffers_1;
+  using transfer_category = send_op;
 
   explicit basic_send_buffer(data_type&& data)
   : data_(std::move(data))
@@ -94,6 +93,7 @@ class basic_receive_buffer
  public:
   using data_type = std::string;
   using buffer_type = boost::asio::mutable_buffers_1;
+  using transfer_category = receive_op;
 
   explicit basic_receive_buffer(std::size_t n)
   : data_(n, 0)

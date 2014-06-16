@@ -13,7 +13,7 @@ namespace neev{
 struct send_op;
 struct receive_op;
 
-template <typename TransferKind>
+template <typename TransferCategory>
 struct transfer;
 
 template <>
