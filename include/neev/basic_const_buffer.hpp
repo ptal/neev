@@ -69,20 +69,20 @@ class basic_const_buffer
   data_type data_;
 };
 
-template <class TimerPolicy = no_timer>
-using basic_sender = network_transfer<basic_const_buffer, send_transfer, TimerPolicy>;
+template <class Observer, class TimerPolicy>
+using basic_sender = network_transfer<basic_const_buffer, Observer, send_transfer, TimerPolicy>;
 
-template <class TimerPolicy = no_timer>
-using basic_sender_ptr = std::shared_ptr<basic_sender<TimerPolicy>>;
+template <class Observer, class TimerPolicy>
+using basic_sender_ptr = std::shared_ptr<basic_sender<Observer, TimerPolicy>>;
 
-template <class TimerPolicy, class Socket>
-basic_sender_ptr<TimerPolicy> make_basic_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
+template <class TimerPolicy, class Observer, class Socket>
+basic_sender_ptr<Observer, TimerPolicy> make_basic_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, std::string data)
 {
-  using sender_type = basic_sender<TimerPolicy>;
-  using provider_type = typename sender_type::provider_type;
+  using sender_type = basic_sender<Observer, TimerPolicy>;
 
   return std::make_shared<sender_type>(
-    std::cref(socket), provider_type(std::move(data)));
+    std::cref(socket), std::forward<Observer>(observer), std::move(data));
 }
 
 } // namespace neev

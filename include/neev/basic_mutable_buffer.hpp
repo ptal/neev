@@ -70,19 +70,20 @@ class basic_mutable_buffer
   data_type data_;
 };
 
-template <class TimerPolicy = no_timer>
-using basic_receiver = network_transfer<basic_mutable_buffer, receive_transfer, TimerPolicy>;
+template <class Observer, class TimerPolicy>
+using basic_receiver = network_transfer<basic_mutable_buffer, Observer, receive_transfer, TimerPolicy>;
 
-template <class TimerPolicy = no_timer>
-using basic_receiver_ptr = std::shared_ptr<basic_receiver<TimerPolicy> >;
+template <class Observer, class TimerPolicy>
+using basic_receiver_ptr = std::shared_ptr<basic_receiver<Observer, TimerPolicy>>;
 
-template <class TimerPolicy, class Socket>
-basic_receiver_ptr<TimerPolicy> make_basic_receiver(const std::shared_ptr<Socket>& socket, std::size_t data_size)
+template <class TimerPolicy, class Observer, class Socket>
+basic_receiver_ptr<TimerPolicy> make_basic_receiver(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, std::size_t data_size)
 {
   using receiver_type = basic_receiver<TimerPolicy>;
 
   return std::make_shared<receiver_type>(
-    std::cref(socket), data_size);
+    std::cref(socket), std::forward<Observer>(observer), data_size);
 }
 
 

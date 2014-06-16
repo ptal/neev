@@ -8,17 +8,20 @@
 #include <boost/bind.hpp>
 #include <iostream>
 
-void print_date(const std::string& date)
+class daytime_connection
 {
-  std::cout << date << std::endl;
-}
+ public:
+  using events_type = boost::mpl::set<neev::transfer_complete>;
+  void transfer_complete(const std::string& date) const
+  {
+    std::cout << date << std::endl;
+  }
+};
 
 void receive_date(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   using namespace neev;
-  auto receiver = make_prefixed16_receiver<no_timer>(socket);
-  receiver->on_event<transfer_complete>(
-    boost::bind(print_date, boost::cref(receiver->data())));
+  auto receiver = make_prefixed16_receiver<no_timer>(socket, daytime_connection());
   std::cout << "waiting for server...\n";
   receiver->async_transfer();
 }

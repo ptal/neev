@@ -11,16 +11,17 @@
 
 namespace neev{
 
-template <class TimerPolicy, class SizeType>
-using archive_sender = network_transfer<prefixed_const_buffer<SizeType>, send_transfer, TimerPolicy>;
+template <class Observer, class TimerPolicy, class PrefixType>
+using archive_sender = network_transfer<prefixed_const_buffer<PrefixType>, Observer, send_transfer, TimerPolicy>;
 
-template <class TimerPolicy, class SizeType>
-using archive_sender_ptr = std::shared_ptr<archive_sender<TimerPolicy, SizeType> >;
+template <class Observer, class TimerPolicy, class PrefixType>
+using archive_sender_ptr = std::shared_ptr<archive_sender<Observer, TimerPolicy, PrefixType>>;
 
-template <class TimerPolicy, class SizeType, class Socket, class Archive>
-archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
+template <class Observer, class TimerPolicy, class PrefixType, class Socket, class Archive>
+archive_sender_ptr<Observer, TimerPolicy, PrefixType> make_archive_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, const Archive& data)
 {
-  using sender_type = archive_sender<TimerPolicy, SizeType>;
+  using sender_type = archive_sender<Observer, TimerPolicy, PrefixType>;
 
   // The binary_oarchive is not portable across plateform, don't use it...
   // We use the text version instead.
@@ -29,25 +30,31 @@ archive_sender_ptr<TimerPolicy, SizeType> make_archive_sender(const std::shared_
   archive << data;
 
   return std::make_shared<sender_type>(
-    std::cref(socket), archive_stream.str());
+    std::cref(socket), std::forward<Observer>(observer), archive_stream.str());
 }
 
-template <class TimerPolicy, class Archive, class Socket>
-archive_sender_ptr<TimerPolicy, std::uint32_t> make_archive32_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
+template <class TimerPolicy, class Socket, class Observer, class Archive>
+archive_sender_ptr<Observer, TimerPolicy, std::uint32_t> make_archive32_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, const Archive& data)
 {
-  return make_archive_sender<TimerPolicy, std::uint32_t>(socket, data);
+  return make_archive_sender<TimerPolicy, std::uint32_t>(
+    socket, std::forward<Observer>(observer), data);
 }
 
-template <class TimerPolicy, class Socket, class Archive>
-archive_sender_ptr<TimerPolicy, std::uint16_t> make_archive16_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
+template <class TimerPolicy, class Socket, class Observer, class Archive>
+archive_sender_ptr<Observer, TimerPolicy, std::uint16_t> make_archive16_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, const Archive& data)
 {
-  return make_archive_sender<TimerPolicy, std::uint16_t>(socket, data);
+  return make_archive_sender<TimerPolicy, std::uint16_t>(
+    socket, std::forward<Observer>(observer), data);
 }
 
-template <class TimerPolicy, class Socket, class Archive>
-archive_sender_ptr<TimerPolicy, std::uint8_t> make_archive8_sender(const std::shared_ptr<Socket>& socket, const Archive& data)
+template <class TimerPolicy, class Socket, class Observer, class Archive>
+archive_sender_ptr<Observer, TimerPolicy, std::uint8_t> make_archive8_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, const Archive& data)
 {
-  return make_archive_sender<TimerPolicy, std::uint8_t>(socket, data);
+  return make_archive_sender<TimerPolicy, std::uint8_t>(
+    socket, std::forward<Observer>(observer), data);
 }
 
 } // namespace neev

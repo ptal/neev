@@ -85,37 +85,44 @@ class prefixed_const_buffer
   prefix_type prefix_;
 };
 
-template <class TimerPolicy, class PrefixType>
-using prefixed_sender = network_transfer<prefixed_const_buffer<PrefixType>, send_transfer, TimerPolicy>;
+template <class Observer, class TimerPolicy, class PrefixType>
+using prefixed_sender = network_transfer<prefixed_const_buffer<PrefixType>, Observer, send_transfer, TimerPolicy>;
 
-template <class TimerPolicy, class PrefixType>
-using prefixed_sender_ptr = std::shared_ptr<prefixed_sender<TimerPolicy, PrefixType> >;
+template <class Observer, class TimerPolicy, class PrefixType>
+using prefixed_sender_ptr = std::shared_ptr<prefixed_sender<Observer, TimerPolicy, PrefixType>>;
 
-template <class TimerPolicy, class PrefixType, class Socket>
-prefixed_sender_ptr<TimerPolicy, PrefixType> make_prefixed_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
+template <class TimerPolicy, class PrefixType, class Observer, class Socket>
+prefixed_sender_ptr<Observer, TimerPolicy, PrefixType> make_prefixed_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, std::string data)
 {
-  using sender_type = prefixed_sender<TimerPolicy, PrefixType>;
+  using sender_type = prefixed_sender<Observer, TimerPolicy, PrefixType>;
 
   return std::make_shared<sender_type>(
-    std::cref(socket), std::move(data));
+    std::cref(socket), std::forward<Observer>(observer), std::move(data));
 }
 
-template <class TimerPolicy, class Socket>
-prefixed_sender_ptr<TimerPolicy, std::uint32_t> make_prefixed32_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
+template <class TimerPolicy, class Observer, class Socket>
+prefixed_sender_ptr<Observer, TimerPolicy, std::uint32_t> make_prefixed32_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, std::string data)
 {
-  return make_prefixed_sender<TimerPolicy, std::uint32_t>(socket, std::move(data));
+  return make_prefixed_sender<TimerPolicy, std::uint32_t>(
+    socket, std::forward<Observer>(observer), std::move(data));
 }
 
-template <class TimerPolicy, class Socket>
-prefixed_sender_ptr<TimerPolicy, std::uint16_t> make_prefixed16_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
+template <class TimerPolicy, class Observer, class Socket>
+prefixed_sender_ptr<Observer, TimerPolicy, std::uint16_t> make_prefixed16_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, std::string data)
 {
-  return make_prefixed_sender<TimerPolicy, std::uint16_t>(socket, std::move(data));
+  return make_prefixed_sender<TimerPolicy, std::uint16_t>(
+    socket, std::forward<Observer>(observer), std::move(data));
 }
 
-template <class TimerPolicy, class Socket>
-prefixed_sender_ptr<TimerPolicy, std::uint8_t> make_prefixed8_sender(const std::shared_ptr<Socket>& socket, std::string&& data)
+template <class TimerPolicy, class Observer, class Socket>
+prefixed_sender_ptr<Observer, TimerPolicy, std::uint8_t> make_prefixed8_sender(
+  const std::shared_ptr<Socket>& socket, Observer&& observer, std::string data)
 {
-  return make_prefixed_sender<TimerPolicy, std::uint8_t>(socket, std::move(data));
+  return make_prefixed_sender<TimerPolicy, std::uint8_t>(
+    socket, std::forward<Observer>(observer), std::move(data));
 }
 
 } // namespace neev

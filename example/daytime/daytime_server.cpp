@@ -8,25 +8,35 @@
 #include <ctime>
 #include <iostream>
 
-using namespace neev;
+
+class daytime_connection
+{
+ public:
+  using events_type = boost::mpl::set<neev::transfer_complete>;
+  void transfer_complete(const std::string&) const
+  {
+    std::cout << "data sent!" << std::endl;
+  }
+};
 
 std::string make_daytime_string()
 {
-  using namespace std; // For time_t, time and ctime;
+  using namespace std;
   time_t now = time(0);
   return ctime(&now);
 }
 
 void on_new_client(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
+  using namespace neev;
   std::cout << "new client...\n";
-  auto sender = make_prefixed16_sender<no_timer>(socket, make_daytime_string());
-  sender->on_event<transfer_complete>([](){std::cout << "data sent!" << std::endl;});
+  auto sender = make_prefixed16_sender<no_timer>(socket, daytime_connection(), make_daytime_string());
   sender->async_transfer();
 }
 
 int main()
 {
+  using namespace neev;
   static const std::string PORT = "12222";
   server_mt server(4);
   server.on_event<new_client>(on_new_client);

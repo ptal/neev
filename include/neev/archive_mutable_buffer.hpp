@@ -39,37 +39,44 @@ public:
   }
 };
 
-template <class Archive, class TimerPolicy, class SizeType>
-using archive_receiver = network_transfer<archive_mutable_buffer<Archive, SizeType>, receive_transfer, TimerPolicy>;
+template <class Observer, class Archive, class TimerPolicy, class PrefixType>
+using archive_receiver = network_transfer<archive_mutable_buffer<Archive, PrefixType>, Observer, receive_transfer, TimerPolicy>;
 
-template <class Archive, class TimerPolicy, class SizeType>
-using archive_receiver_ptr = std::shared_ptr<archive_receiver<Archive, TimerPolicy, SizeType> >;
+template <class Observer, class Archive, class TimerPolicy, class PrefixType>
+using archive_receiver_ptr = std::shared_ptr<archive_receiver<Observer, Archive, TimerPolicy, PrefixType>>;
 
-template <class Archive, class TimerPolicy, class SizeType, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, SizeType> make_archive_receiver(const std::shared_ptr<Socket>& socket)
+template <class Archive, class TimerPolicy, class PrefixType, class Observer, class Socket>
+archive_receiver_ptr<Observer, Archive, TimerPolicy, PrefixType> make_archive_receiver(
+  const std::shared_ptr<Socket>& socket, Observer&& observer)
 {
-  using receiver_type = archive_receiver<Archive, TimerPolicy, SizeType>;
-  using provider_type = typename receiver_type::provider_type;
+  using receiver_type = archive_receiver<Observer, Archive, TimerPolicy, PrefixType>;
 
-  return std::make_shared<receiver_type>(std::cref(socket));
+  return std::make_shared<receiver_type>(
+    std::cref(socket), std::forward<Observer>(observer));
 }
 
-template <class Archive, class TimerPolicy, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, std::uint32_t> make_archive32_receiver(const std::shared_ptr<Socket>& socket)
+template <class Archive, class TimerPolicy, class Observer, class Socket>
+archive_receiver_ptr<Observer, Archive, TimerPolicy, std::uint32_t> make_archive32_receiver(
+  const std::shared_ptr<Socket>& socket, Observer&& observer)
 {
-  return make_archive_receiver<Archive, TimerPolicy, std::uint32_t>(socket);
+  return make_archive_receiver<Archive, TimerPolicy, std::uint32_t>(
+    socket, std::forward<Observer>(observer));
 }
 
-template <class Archive, class TimerPolicy, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, std::uint16_t> make_archive16_receiver(const std::shared_ptr<Socket>& socket)
+template <class Archive, class TimerPolicy, class Observer, class Socket>
+archive_receiver_ptr<Observer, Archive, TimerPolicy, std::uint16_t> make_archive16_receiver(
+  const std::shared_ptr<Socket>& socket, Observer&& observer)
 {
-  return make_archive_receiver<Archive, TimerPolicy, std::uint16_t>(socket);
+  return make_archive_receiver<Archive, TimerPolicy, std::uint16_t>(
+    socket, std::forward<Observer>(observer));
 }
 
-template <class Archive, class TimerPolicy, class Socket>
-archive_receiver_ptr<Archive, TimerPolicy, std::uint8_t> make_archive8_receiver(const std::shared_ptr<Socket>& socket)
+template <class Archive, class TimerPolicy, class Observer, class Socket>
+archive_receiver_ptr<Observer, Archive, TimerPolicy, std::uint8_t> make_archive8_receiver(
+  const std::shared_ptr<Socket>& socket, Observer&& observer)
 {
-  return make_archive_receiver<Archive, TimerPolicy, std::uint8_t>(socket);
+  return make_archive_receiver<Archive, TimerPolicy, std::uint8_t>(
+    socket, std::forward<Observer>(observer));
 }
 } // namespace neev
 
