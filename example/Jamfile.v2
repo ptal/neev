@@ -9,5 +9,4 @@ project neev/example
       <toolset>clang:<cxxflags>-std=c++11
       <include>../include/
       <include>../Boost.Endian/include
-      <library>../build//neev
     ;

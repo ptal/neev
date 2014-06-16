@@ -16,7 +16,6 @@
 #include <neev/timer_policy.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
-#include <boost/mpl/contains.hpp>
 #include <memory>
 
 namespace neev{
@@ -119,7 +118,7 @@ private:
     std::size_t overall_bytes_transferred = bytes_transferred_ + chunk_bytes_transferred;
     if(!error && !this->is_timed_out() && !buffer_provider_.is_chunk_complete(chunk_bytes_transferred))
     {
-      call<transfer_on_going>(observer_, overall_bytes_transferred, buffer_provider_.size());
+      dispatch_event<transfer_on_going>(observer_, overall_bytes_transferred, buffer_provider_.size());
       return buffer_provider_.chunk_size() - chunk_bytes_transferred;
     }
     else
@@ -138,21 +137,21 @@ private:
     bytes_transferred_ += chunk_bytes_transferred;
     if(this->is_timed_out() || error.value() == boost::asio::error::operation_aborted)
     {
-      call<transfer_error>(observer_, boost::asio::error::make_error_code(boost::asio::error::timed_out));
+      dispatch_event<transfer_error>(observer_, boost::asio::error::make_error_code(boost::asio::error::timed_out));
     }
     else if(error)
     {
-      call<transfer_error>(observer_, error);
+      dispatch_event<transfer_error>(observer_, error);
     }
     else
     {
       try
       {
-        call<transfer_on_going>(observer_, bytes_transferred_, buffer_provider_.size());
+        dispatch_event<transfer_on_going>(observer_, bytes_transferred_, buffer_provider_.size());
         // Could it be replaced by "is_done" ?
         if(!buffer_provider_.has_next_chunk())
         {
-          call<transfer_complete>(observer_, buffer_provider_.data());
+          dispatch_event<transfer_complete>(observer_, buffer_provider_.data());
         }
         else
         {
@@ -162,7 +161,7 @@ private:
       }
       catch(const boost::system::system_error& e)
       {
-        call<transfer_error>(observer_, e.code());
+        dispatch_event<transfer_error>(observer_, e.code());
       }
     }
   }

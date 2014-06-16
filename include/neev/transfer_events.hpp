@@ -13,7 +13,6 @@
 #include <neev/traits/subscriber_traits.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/optional.hpp>
-#include <boost/mpl/contains.hpp>
 
 namespace neev{
 
@@ -48,54 +47,35 @@ struct event_slot<transfer_on_going>
   using type = void(std::size_t, boost::optional<std::size_t>);
 };
 
-namespace detail{
-template <class Observer, typename Event, 
-  bool must_call = boost::mpl::contains<
-    typename subscriber_traits<Observer>::events_type,
-    Event>::type::value>
-struct call_if
-{
-  template <class... DontCareArgs>
-  static void call(DontCareArgs&&...){}
-};
-
 template <class Observer>
-struct call_if<Observer, transfer_complete, true>
+struct event_dispatcher<Observer, transfer_complete, true>
 {
   template <class... Args>
-  static void call(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, Args&&... args)
   {
     obs.transfer_complete(std::forward<Args>(args)...);
   }
 };
 
 template <class Observer>
-struct call_if<Observer, transfer_error, true>
+struct event_dispatcher<Observer, transfer_error, true>
 {
   template <class... Args>
-  static void call(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, Args&&... args)
   {
     obs.transfer_error(std::forward<Args>(args)...);
   }
 };
 
 template <class Observer>
-struct call_if<Observer, transfer_on_going, true>
+struct event_dispatcher<Observer, transfer_on_going, true>
 {
   template <class... Args>
-  static void call(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, Args&&... args)
   {
     obs.transfer_on_going(std::forward<Args>(args)...);
   }
 };
-} // namespace detail
-
-template <class Event, class Observer, class... Args>
-void call(Observer& observer, Args&&... args)
-{
-  detail::call_if<Observer, Event>::call(
-    observer, std::forward<Args>(args)...);
-}
 
 struct transfer_events
 : events<transfer_complete

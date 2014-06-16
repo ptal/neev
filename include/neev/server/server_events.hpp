@@ -10,6 +10,7 @@
 #define NEEV_SERVER_EVENTS_HPP
 
 #include <neev/events.hpp>
+#include <neev/traits/subscriber_traits.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <boost/shared_ptr.hpp>
@@ -18,12 +19,73 @@
 
 namespace neev{
 
-struct endpoint_failure{};
-struct start_success{};
-struct start_failure{};
-struct run_exception{};
-struct run_unknown_exception{};
-struct new_client{};
+struct endpoint_failure;
+struct start_success;
+struct start_failure;
+struct run_exception;
+struct run_unknown_exception;
+struct new_client;
+
+template <class Observer>
+struct event_dispatcher<Observer, endpoint_failure, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.endpoint_failure(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, start_success, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.start_success(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, start_failure, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.start_failure(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, run_exception, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.run_exception(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, run_unknown_exception, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.run_unknown_exception(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, new_client, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.new_client(std::forward<Args>(args)...);
+  }
+};
+
 
 template <>
 struct event_slot<endpoint_failure>

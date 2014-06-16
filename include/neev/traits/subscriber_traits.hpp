@@ -6,6 +6,8 @@
 #ifndef NEEV_SUBSCRIBER_TRAITS_HPP
 #define NEEV_SUBSCRIBER_TRAITS_HPP
 
+#include <boost/mpl/contains.hpp>
+
 namespace neev{
 
 template <class Subscriber>
@@ -13,6 +15,23 @@ struct subscriber_traits
 {
   using events_type = typename Subscriber::events_type;
 };
+
+template <class Observer, typename Event, 
+  bool must_call = boost::mpl::contains<
+    typename subscriber_traits<Observer>::events_type,
+    Event>::type::value>
+struct event_dispatcher
+{
+  template <class... DontCareArgs>
+  static void apply(DontCareArgs&&...){}
+};
+
+template <class Event, class Observer, class... Args>
+void dispatch_event(Observer& observer, Args&&... args)
+{
+  event_dispatcher<Observer, Event>::apply(
+    observer, std::forward<Args>(args)...);
+}
 
 } // namespace neev
 

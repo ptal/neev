@@ -11,7 +11,6 @@
 
 #include <neev/server/server_events.hpp>
 #include <boost/asio.hpp>
-#include <boost/noncopyable.hpp>
 #include <string>
 
 namespace neev{
@@ -20,7 +19,8 @@ namespace neev{
 * Basic TCP server running the io_service.run() method in 
 * a single thread.
 */
-class basic_server : boost::noncopyable
+template <class Observer>
+class basic_server
 {
 public:
   /// Type of the sockets created by this server.
@@ -29,11 +29,22 @@ public:
   /// Pointer type to the socket created by this server.
   using socket_ptr = std::shared_ptr<socket_type>;
 
+  using observer_type = Observer;
+
 public:
-  /** Initialize the server.
-  * \post The server is not launched.
-  */
-  basic_server();
+  // Rational: Do not start the server, it could fail and we'd have an invalid object.
+  // Also the user would not be able to use the same object to try another service.
+  basic_server(observer_type&& observer)
+  : io_service_()
+  , acceptor_(io_service_)
+  , server_on_(false)
+  , observer_(std::move(observer))
+  {}
+
+  basic_server(basic_server&&) = delete;
+  basic_server& operator=(basic_server&&) = delete;
+  basic_server(const basic_server&) = delete;
+  basic_server& operator=(const basic_server&) = delete;
 
   /** Register asynchronous operation to start the server 
   * when run() will be called.
@@ -48,7 +59,43 @@ public:
   * - start_failure
   * - start_success
   */
-  void start(const std::string& service);
+  void start(const std::string& service)
+  {
+    using namespace boost::asio::ip;
+
+    // Find an endpoint on the service specified, if none found, throw a runtime_error exception.
+    tcp::resolver resolver(io_service_);
+    tcp::resolver::query query(service, tcp::resolver::query::address_configured);
+    tcp::resolver::iterator endpoint_iter = resolver.resolve(query);
+    tcp::resolver::iterator endpoint_end;
+    tcp::endpoint endpoint;
+
+    for(; endpoint_iter != endpoint_end; ++endpoint_iter)
+    {
+      try
+      {
+        endpoint = tcp::endpoint(*endpoint_iter);
+        acceptor_.open(endpoint.protocol());
+        acceptor_.bind(endpoint);
+        acceptor_.listen();
+        break;
+      }
+      catch(std::exception &e)
+      {
+        dispatch_event<endpoint_failure>(observer_, e.what());
+      }
+    }
+    if(endpoint_iter == endpoint_end)
+    {
+      dispatch_event<start_failure>(observer_);
+    }
+    else
+    {
+      server_on_ = true;
+      start_accept();
+      dispatch_event<start_success>(observer_, endpoint);
+    }
+  }
 
   /** The main loop of the server is launched.
   *
@@ -68,7 +115,24 @@ public:
   * - run_exception
   * - run_unknown_exception
   */
-  void run();
+  void run()
+  {
+    while(server_on_)
+    {
+      try
+      {
+        io_service_.run();
+      }
+      catch(std::exception& e)
+      {
+        dispatch_event<run_exception>(observer_, e);
+      }
+      catch(...)
+      {
+        dispatch_event<run_unknown_exception>(observer_);
+      }
+    }
+  }
 
   /** Perform a start and run.
   *
@@ -78,21 +142,18 @@ public:
   * \return doesn't return unless the server could not have been started.
   * \see start() run() ::server_events
   */
-  void launch(const std::string& service);
+  void launch(const std::string& service)
+  {
+    start(service);
+    run();
+  }
 
   /**
   * \return the io_service associated with this server.
   */
-  boost::asio::io_service& get_io_service();
-
-  /** Add an event to the current object.
-  * \pre Event must be an event of the server_events class.
-  * \see ::server_events
-  */
-  template <class Event, class F>
-  boost::signals2::connection on_event(F f)
+  boost::asio::io_service& get_io_service()
   {
-    return events_.on_event<Event>(f);
+    return io_service_;
   }
 
   /** Stop request on the server.
@@ -101,16 +162,34 @@ public:
   * The return of the launch() or run() method will indicate you that the server has been
   * properly shut down.
   */
-  void stop();
+  void stop()
+  {
+    server_on_ = false;
+    io_service_.stop();
+  }
 
 private:
-  void start_accept();
-  void handle_accept(const socket_ptr& socket, const boost::system::error_code& e);
+  void start_accept()
+  {
+    socket_ptr socket = std::make_shared<socket_type>(std::ref(io_service_));
+    acceptor_.async_accept(*socket,
+      boost::bind(&basic_server::handle_accept, this, socket, boost::asio::placeholders::error)
+    );
+  }
+
+  void handle_accept(const socket_ptr& socket, const boost::system::error_code& e)
+  {
+    if (!e)
+    {
+      dispatch_event<new_client>(observer_, socket);
+    }
+    start_accept();
+  }
 
   boost::asio::io_service io_service_;
   boost::asio::ip::tcp::acceptor acceptor_;
   bool server_on_;
-  server_events events_;
+  observer_type observer_;
 };
 
 } // namespace neev
