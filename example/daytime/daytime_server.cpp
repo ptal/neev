@@ -22,7 +22,10 @@ class daytime_connection
 class daytime_server
 {
  public:
-  using events_type = boost::mpl::set<neev::new_client>;
+  using events_type = boost::mpl::set<
+    neev::new_client,
+    neev::start_failure,
+    neev::start_success>;
 
   void new_client(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket) const
   {

@@ -10,15 +10,46 @@
 #define NEEV_CLIENT_CONNECTION_EVENTS_HPP
 
 #include <neev/events.hpp>
+#include <neev/traits/subscriber_traits.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
 #include <string>
 
 namespace neev{
 
-struct try_connecting_with_ip{};
-struct connection_success{};
-struct connection_failure{};
+struct try_connecting_with_ip;
+struct connection_success;
+struct connection_failure;
+
+template <class Observer>
+struct event_dispatcher<Observer, try_connecting_with_ip, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.try_connecting_with_ip(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, connection_success, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.connection_success(std::forward<Args>(args)...);
+  }
+};
+
+template <class Observer>
+struct event_dispatcher<Observer, connection_failure, true>
+{
+  template <class... Args>
+  static void apply(Observer& obs, Args&&... args)
+  {
+    obs.connection_failure(std::forward<Args>(args)...);
+  }
+};
 
 template <>
 struct event_slot<try_connecting_with_ip>

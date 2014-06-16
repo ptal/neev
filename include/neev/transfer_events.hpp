@@ -16,12 +16,12 @@
 
 namespace neev{
 
-struct transfer_complete{};
-struct transfer_error{};
+struct transfer_complete;
+struct transfer_error;
 
 /** Use this event to track the transmission process.
 */
-struct transfer_on_going{};
+struct transfer_on_going;
 
 template <>
 struct event_slot<transfer_complete>
