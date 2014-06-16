@@ -10,7 +10,14 @@
 
 namespace neev{
 
-struct send_transfer
+struct send_op;
+struct receive_op;
+
+template <typename TransferKind>
+struct transfer;
+
+template <>
+struct transfer<send_op>
 {
   template <class AsyncStream, class Buffer, class CompletionCondition, class CompletionHandler>
   static void async_transfer(AsyncStream& socket, const Buffer& buffer, 
@@ -20,7 +27,8 @@ struct send_transfer
   }
 };
 
-struct receive_transfer
+template <>
+struct transfer<receive_op>
 {
   template <class AsyncStream, class Buffer, class CompletionCondition, class CompletionHandler>
   static void async_transfer(AsyncStream& socket, const Buffer& buffer, 

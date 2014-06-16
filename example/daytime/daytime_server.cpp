@@ -3,8 +3,8 @@
 // 
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
+#include "daytime_transfer.hpp"
 #include <neev/server/server_mt.hpp>
-#include <neev/prefixed_const_buffer.hpp>
 #include <ctime>
 #include <iostream>
 
@@ -30,9 +30,11 @@ class daytime_server
   void new_client(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket) const
   {
     using namespace neev;
+    using buffer_type = daytime_buffer<send_op>;
+
     std::cout << "new client...\n";
-    auto sender = make_prefixed16_sender<no_timer>(socket, daytime_connection(), make_daytime_string());
-    sender->async_transfer();
+    auto transfer = make_transfer<buffer_type>(socket, daytime_connection(), make_daytime_string());
+    transfer->async_transfer(); 
   }
 
   void start_failure() const

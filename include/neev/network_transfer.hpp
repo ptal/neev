@@ -13,6 +13,7 @@
 #define NEEV_NETWORK_TRANSFER_HPP
 
 #include <neev/transfer_events.hpp>
+#include <neev/transfer_operation.hpp>
 #include <neev/timer_policy.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
@@ -20,16 +21,10 @@
 
 namespace neev{
 
-/** Transfer some data with the help of the derived TransferOp class.
-* It subscribes to the chunk_complete event to be sure to transfer all
-* the data until it finishes.
-*
-* @see network_sender network_receiver
-*/
-template <class BufferProvider, class Observer, class TransferOp, class TimerPolicy = no_timer>
+template <class BufferProvider, class Observer, class TransferType, class TimerPolicy = no_timer>
 class network_transfer
 : private TimerPolicy
-, public std::enable_shared_from_this<network_transfer<BufferProvider, Observer, TransferOp, TimerPolicy>>
+, public std::enable_shared_from_this<network_transfer<BufferProvider, Observer, TransferType, TimerPolicy>>
 {
 public:
   using socket_type = boost::asio::ip::tcp::socket;
@@ -38,11 +33,13 @@ public:
   using buffer_type = typename provider_type::buffer_type;
   using data_type = typename provider_type::data_type;
   using observer_type = Observer;
-  using this_type = network_transfer<provider_type, observer_type, TransferOp, TimerPolicy>;
+  using transfer_type = TransferType;
+  using timer_policy = TimerPolicy;
+  using this_type = network_transfer<provider_type, observer_type, transfer_type, timer_policy>;
 
   template <class... BufferProviderArgs>
   network_transfer(const socket_ptr& socket, observer_type&& observer, BufferProviderArgs&&... args)
-  : TimerPolicy(socket->get_io_service())
+  : timer_policy(socket->get_io_service())
   , socket_(socket)
   , observer_(std::move(observer))
   , buffer_provider_(std::forward<BufferProviderArgs>(args)...)
@@ -78,7 +75,7 @@ public:
 
   void async_transfer(const boost::posix_time::time_duration& timeout)
   {
-    static_assert(!boost::is_same<TimerPolicy, no_timer>::value,
+    static_assert(!boost::is_same<timer_policy, no_timer>::value,
       "async_transfer(const boost::posix_time::time_duration& timeout) is not available"
       " because the timer policy of network_transfer is set to no_timer.");
     if(!this->is_done())
@@ -96,7 +93,7 @@ public:
 private:
   void async_transfer_impl()
   {
-    TransferOp::async_transfer(*socket_
+    transfer<transfer_type>::async_transfer(*socket_
     , buffer_provider_.chunk()
     , boost::bind(&this_type::is_transfer_complete, this->shared_from_this()
       , boost::asio::placeholders::error
@@ -171,6 +168,24 @@ private:
   provider_type buffer_provider_;
   std::size_t bytes_transferred_;
 };
+
+template <class BufferTraits, class TimerPolicy = no_timer, class Socket, class Observer, class... BufferArgs>
+std::shared_ptr<
+  network_transfer<
+    typename BufferTraits::type, 
+    Observer,
+    typename BufferTraits::transfer_type,
+    TimerPolicy>>
+make_transfer(const std::shared_ptr<Socket>& socket, Observer&& observer, BufferArgs&&... args)
+{
+  return std::make_shared<
+    network_transfer<
+      typename BufferTraits::type, 
+      Observer,
+      typename BufferTraits::transfer_type,
+      TimerPolicy>>(
+    std::cref(socket), std::forward<Observer>(observer), std::forward<BufferArgs>(args)...);
+}
 
 } // namespace neev
 

@@ -3,8 +3,8 @@
 // 
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
+#include "daytime_transfer.hpp"
 #include <neev/client/client.hpp>
-#include <neev/prefixed_mutable_buffer.hpp>
 #include <boost/bind.hpp>
 #include <iostream>
 
@@ -28,9 +28,10 @@ class daytime_client
   void connection_success(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
   {
     using namespace neev;
-    auto receiver = make_prefixed16_receiver<no_timer>(socket, daytime_connection());
-    std::cout << "waiting for server...\n";
-    receiver->async_transfer();
+    using buffer_type = daytime_buffer<receive_op>;
+    auto transfer = make_transfer<buffer_type>(socket, daytime_connection());
+    transfer->async_transfer();
+    std::cout << "Waiting for server...\n";
   }
 
   void connection_failure(const boost::system::error_code& code)
