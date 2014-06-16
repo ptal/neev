@@ -80,7 +80,7 @@ public:
       " because the timer policy of network_transfer is set to no_timer.");
     if(!this->is_done())
     {
-      this->launch(timeout);
+      this->template launch<this_type>(timeout);
       async_transfer_impl();
     }
   }
@@ -95,13 +95,13 @@ private:
   {
     using std::placeholders::_1;
     using std::placeholders::_2;
-    
+
     transfer<transfer_category>::async_transfer(*socket_
     , buffer_provider_.chunk()
-    , std::bind(&this_type::is_transfer_complete, this->shared_from_this()
-      , _1, _2)
-    , std::bind(&this_type::on_chunk_complete, this->shared_from_this()
-      , _1, _2)
+    , timer_policy::wrap(std::bind(&this_type::is_transfer_complete, 
+        this->shared_from_this(), _1, _2))
+    , timer_policy::wrap(std::bind(&this_type::on_chunk_complete, 
+        this->shared_from_this(), _1, _2))
     );
   }
 
@@ -127,13 +127,11 @@ private:
   * @note Should be protected but there is some problems in the derived class 
   * to access it in a bind declaration.
   */
-  /** When the timed out has expired, it is guarantee that the transfer operation will be called at most once again.
-  */
   void on_chunk_complete(const boost::system::error_code& error,
     std::size_t chunk_bytes_transferred)
   {
     bytes_transferred_ += chunk_bytes_transferred;
-    if(this->is_timed_out() || error.value() == boost::asio::error::operation_aborted)
+    if(this->is_timed_out())
     {
       dispatch_event<transfer_error>(observer_, boost::asio::error::make_error_code(boost::asio::error::timed_out));
     }

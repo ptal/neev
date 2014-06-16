@@ -15,8 +15,15 @@ namespace neev{
 
 struct no_timer
 {
-  no_timer(boost::asio::io_service&){}
-  bool is_timed_out() const
+  constexpr no_timer(boost::asio::io_service&){}
+
+  template <class Handler>
+  constexpr Handler wrap(Handler handler) const
+  {
+    return handler;
+  }
+
+  constexpr bool is_timed_out() const
   {
     return false;
   }
@@ -27,7 +34,14 @@ struct transfer_timer
   transfer_timer(boost::asio::io_service & io_service)
   : timed_out_(false)
   , timer_(io_service)
+  , strand_(io_service)
   {}
+
+  template <class Handler>
+  auto wrap(Handler&& handler) -> decltype(boost::asio::strand::wrap(std::forward<Handler>(handler)))
+  {
+    return strand_.wrap(std::forward<Handler>(handler));
+  }
 
   template <class TransferOpCRTP>
   void launch(const boost::posix_time::time_duration& timeout)
@@ -39,12 +53,9 @@ struct transfer_timer
     TransferOpCRTP* transfer_op = static_cast<TransferOpCRTP*>(this);
     if(!transfer_op->is_done())
     {
-      transfer_op->template on_event<transfer_complete>(
-        std::bind(&transfer_timer::cancel_timeout, this));
-      transfer_op->template on_event<transfer_error>(
-        std::bind(&transfer_timer::cancel_timeout, this));
       timer_.expires_from_now(timeout);
-      timer_.async_wait(std::bind(&transfer_timer::on_timeout<TransferOpCRTP>, this, _1));
+      timer_.async_wait(wrap(std::bind(
+        &transfer_timer::on_timeout<TransferOpCRTP>, this, _1)));
     }
   }
 
@@ -73,6 +84,7 @@ private:
 
   bool timed_out_;
   boost::asio::deadline_timer timer_;
+  boost::asio::strand strand_;
 };
 
 } // namespace neev
