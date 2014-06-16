@@ -129,7 +129,7 @@ public:
       }
       catch(...)
       {
-        dispatch_event<run_unknown_exception>(observer_);
+        dispatch_event<run_unknown_exception>(observer_, std::current_exception());
       }
     }
   }
@@ -171,9 +171,10 @@ public:
 private:
   void start_accept()
   {
+    using std::placeholders::_1;
     socket_ptr socket = std::make_shared<socket_type>(std::ref(io_service_));
     acceptor_.async_accept(*socket,
-      boost::bind(&basic_server::handle_accept, this, socket, boost::asio::placeholders::error)
+      std::bind(&basic_server::handle_accept, this, socket, _1)
     );
   }
 

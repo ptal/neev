@@ -27,7 +27,9 @@ class daytime_server
     neev::start_failure,
     neev::start_success>;
 
-  void new_client(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket) const
+  using socket_ptr = std::shared_ptr<boost::asio::ip::tcp::socket>;
+
+  void new_client(const socket_ptr& socket) const
   {
     using namespace neev;
     using buffer_type = daytime_buffer<send_op>;

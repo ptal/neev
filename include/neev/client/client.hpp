@@ -45,13 +45,15 @@ public:
   */
   void async_connect(const std::string& host, const std::string& service)
   {
+    using std::placeholders::_1;
+    using std::placeholders::_2;
+
     // Start an asynchronous resolve to translate the server and service names
     // into a list of endpoints.
     boost::asio::ip::tcp::resolver::query query(host, service);
     resolver_.async_resolve(query,
-      boost::bind(&shared_client::handle_resolve, this->shared_from_this(),
-        boost::asio::placeholders::error,
-        boost::asio::placeholders::iterator));
+      std::bind(&shared_client::handle_resolve, this->shared_from_this(),
+        _1, _2));
   }
   /**
   * @return the current socket.
@@ -93,12 +95,15 @@ private:
   void handle_resolve(const boost::system::error_code& error,
       resolver_type::iterator endpoint_iterator)
   {
+    using std::placeholders::_1;
+    using std::placeholders::_2;
+
     if(!error)
     {
       boost::asio::async_connect(*socket_
         , endpoint_iterator
-        , boost::bind(&shared_client::before_connect, this->shared_from_this(), _1, _2)
-        , boost::bind(&shared_client::handle_connect, this->shared_from_this(), _1, _2));
+        , std::bind(&shared_client::before_connect, this->shared_from_this(), _1, _2)
+        , std::bind(&shared_client::handle_connect, this->shared_from_this(), _1, _2));
     }
     else
     {

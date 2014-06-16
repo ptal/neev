@@ -6,9 +6,15 @@
 #ifndef NEEV_SUBSCRIBER_TRAITS_HPP
 #define NEEV_SUBSCRIBER_TRAITS_HPP
 
+#include <boost/mpl/set.hpp>
 #include <boost/mpl/contains.hpp>
 
 namespace neev{
+
+template <class... Events>
+struct events
+: boost::mpl::set<Events...>
+{};
 
 template <class Subscriber>
 struct subscriber_traits

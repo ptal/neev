@@ -9,6 +9,7 @@
 #include <neev/transfer_events.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
+#include <functional>
 
 namespace neev{
 
@@ -31,16 +32,19 @@ struct transfer_timer
   template <class TransferOpCRTP>
   void launch(const boost::posix_time::time_duration& timeout)
   {
-    BOOST_ASSERT_MSG(timeout.total_nanoseconds() != 0, "You can't launch an operation with a timer sets at 0 seconds.");
+    using std::placeholders::_1;
+
+    BOOST_ASSERT_MSG(timeout.total_nanoseconds() != 0, 
+      "You can't launch an operation with a timer sets at 0 seconds.");
     TransferOpCRTP* transfer_op = static_cast<TransferOpCRTP*>(this);
     if(!transfer_op->is_done())
     {
       transfer_op->template on_event<transfer_complete>(
-        boost::bind(&transfer_timer::cancel_timeout, this));
+        std::bind(&transfer_timer::cancel_timeout, this));
       transfer_op->template on_event<transfer_error>(
-        boost::bind(&transfer_timer::cancel_timeout, this));
+        std::bind(&transfer_timer::cancel_timeout, this));
       timer_.expires_from_now(timeout);
-      timer_.async_wait(boost::bind(&transfer_timer::on_timeout<TransferOpCRTP>, this, _1));
+      timer_.async_wait(std::bind(&transfer_timer::on_timeout<TransferOpCRTP>, this, _1));
     }
   }
 

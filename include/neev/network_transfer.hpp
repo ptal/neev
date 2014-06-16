@@ -93,14 +93,15 @@ public:
 private:
   void async_transfer_impl()
   {
+    using std::placeholders::_1;
+    using std::placeholders::_2;
+    
     transfer<transfer_category>::async_transfer(*socket_
     , buffer_provider_.chunk()
-    , boost::bind(&this_type::is_transfer_complete, this->shared_from_this()
-      , boost::asio::placeholders::error
-      , boost::asio::placeholders::bytes_transferred)
-    , boost::bind(&this_type::on_chunk_complete, this->shared_from_this()
-      , boost::asio::placeholders::error
-      , boost::asio::placeholders::bytes_transferred)
+    , std::bind(&this_type::is_transfer_complete, this->shared_from_this()
+      , _1, _2)
+    , std::bind(&this_type::on_chunk_complete, this->shared_from_this()
+      , _1, _2)
     );
   }
 

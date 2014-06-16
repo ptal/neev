@@ -9,7 +9,6 @@
 #ifndef NEEV_SERVER_EVENTS_HPP
 #define NEEV_SERVER_EVENTS_HPP
 
-#include <neev/events.hpp>
 #include <neev/traits/subscriber_traits.hpp>
 #include <boost/asio.hpp>
 #include <boost/system/error_code.hpp>
@@ -29,123 +28,57 @@ struct new_client;
 template <class Observer>
 struct event_dispatcher<Observer, endpoint_failure, true>
 {
-  template <class... Args>
-  static void apply(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, std::string endpoint)
   {
-    obs.endpoint_failure(std::forward<Args>(args)...);
+    obs.endpoint_failure(std::move(endpoint));
   }
 };
 
 template <class Observer>
 struct event_dispatcher<Observer, start_success, true>
 {
-  template <class... Args>
-  static void apply(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, const boost::asio::ip::tcp::endpoint& endpoint)
   {
-    obs.start_success(std::forward<Args>(args)...);
+    obs.start_success(endpoint);
   }
 };
 
 template <class Observer>
 struct event_dispatcher<Observer, start_failure, true>
 {
-  template <class... Args>
-  static void apply(Observer& obs, Args&&... args)
+  static void apply(Observer& obs)
   {
-    obs.start_failure(std::forward<Args>(args)...);
+    obs.start_failure();
   }
 };
 
 template <class Observer>
 struct event_dispatcher<Observer, run_exception, true>
 {
-  template <class... Args>
-  static void apply(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, const std::exception& e)
   {
-    obs.run_exception(std::forward<Args>(args)...);
+    obs.run_exception(e);
   }
 };
 
 template <class Observer>
 struct event_dispatcher<Observer, run_unknown_exception, true>
 {
-  template <class... Args>
-  static void apply(Observer& obs, Args&&... args)
+  static void apply(Observer& obs, std::exception_ptr e)
   {
-    obs.run_unknown_exception(std::forward<Args>(args)...);
+    obs.run_unknown_exception(e);
   }
 };
 
 template <class Observer>
 struct event_dispatcher<Observer, new_client, true>
 {
-  template <class... Args>
-  static void apply(Observer& obs, Args&&... args)
+  template <class Socket>
+  static void apply(Observer& obs, const std::shared_ptr<Socket>& socket)
   {
-    obs.new_client(std::forward<Args>(args)...);
+    obs.new_client(socket);
   }
 };
-
-
-template <>
-struct event_slot<endpoint_failure>
-{
-  /** Notify that the connection to a specific endpoint has failed.
-  * The parameter is the reason of the failure.
-  * If there is other endpoints, they'll be tested next.
-  */
-  using type = void(const std::string&);
-};
-
-template <>
-struct event_slot<start_success>
-{
-  /** Notify the success of the server start on the endpoint parameter.
-  */
-  using type = void(const boost::asio::ip::tcp::endpoint&);
-};
-
-template <>
-struct event_slot<start_failure>
-{
-  /** Notify that the server failed to start.
-  */
-  using type = void();
-};
-
-template <>
-struct event_slot<run_exception>
-{
-  /** Notify that an exception has occur while running the main loop.
-  */
-  using type = void(const std::exception&);
-};
-
-template <>
-struct event_slot<run_unknown_exception>
-{
-  /** Notify that an unknown exception has occur while running the main loop.
-  * This event is called in a catch(...) statement.
-  */
-  using type = void();
-};
-
-template <>
-struct event_slot<new_client>
-{
-  /** Notify that a new client has been accepted.
-  */
-  using type = void(const std::shared_ptr<boost::asio::ip::tcp::socket>&);
-};
-
-struct server_events : 
-  events<new_client
-       , start_success
-       , run_exception
-       , run_unknown_exception
-       , start_failure
-       , endpoint_failure>
-{};
 
 } // namespace neev
 
