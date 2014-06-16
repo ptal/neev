@@ -13,6 +13,7 @@
 #define NEEV_NETWORK_TRANSFER_HPP
 
 #include <neev/transfer_events.hpp>
+#include <neev/timer_policy.hpp>
 #include <boost/asio.hpp>
 #include <boost/assert.hpp>
 #include <memory>

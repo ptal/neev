@@ -3,15 +3,19 @@
 //
 // (C) Copyright 2014 Pierre Talbot <ptalbot@hyc.io>
 
-#ifndef NEEV_FIXED_MUTABLE_BUFFER_HPP
-#define NEEV_FIXED_MUTABLE_BUFFER_HPP
+#ifndef NEEV_PREFIXED_MUTABLE_BUFFER_HPP
+#define NEEV_PREFIXED_MUTABLE_BUFFER_HPP
 
-#include <neev/basic_mutable_buffer.hpp>
+#include <neev/network_transfer.hpp>
+#include <neev/transfer_operation.hpp>
+#include <neev/network_converter.hpp>
+#include <string>
+#include <cstdint>
 
 namespace neev{
 
 template <class PrefixType = std::uint32_t>
-class fixed_mutable_buffer
+class prefixed_mutable_buffer
 {
  public:
   using data_type = std::string;
@@ -37,18 +41,18 @@ class fixed_mutable_buffer
   static_assert(std::is_unsigned<prefix_type>::value, 
     "The buffer size will never be negative.");
 
-  fixed_mutable_buffer()
+  prefixed_mutable_buffer()
   : status_(PREFIX_CHUNK)
   , storage_()
   {}
 
-  fixed_mutable_buffer(fixed_mutable_buffer&&) = delete;
-  fixed_mutable_buffer& operator=(fixed_mutable_buffer&&) = delete;
+  prefixed_mutable_buffer(prefixed_mutable_buffer&&) = delete;
+  prefixed_mutable_buffer& operator=(prefixed_mutable_buffer&&) = delete;
   
-  fixed_mutable_buffer(const fixed_mutable_buffer&) = delete;
-  fixed_mutable_buffer& operator=(const fixed_mutable_buffer&) = delete;
+  prefixed_mutable_buffer(const prefixed_mutable_buffer&) = delete;
+  prefixed_mutable_buffer& operator=(const prefixed_mutable_buffer&) = delete;
 
-  ~fixed_mutable_buffer()
+  ~prefixed_mutable_buffer()
   {
     if(status_ == DATA_CHUNK)
     {
@@ -68,7 +72,7 @@ class fixed_mutable_buffer
         return sizeof(prefix_type) + storage_.data_.size();
       default:
         BOOST_ASSERT_MSG(false, 
-          "fixed_mutable_buffer::next_chunk: Invalid status.");
+          "prefixed_mutable_buffer::next_chunk: Invalid status.");
         return boost::optional<std::size_t>();
     }
   }
@@ -83,7 +87,7 @@ class fixed_mutable_buffer
         return storage_.data_.size();
       default:
         BOOST_ASSERT_MSG(false, 
-          "fixed_mutable_buffer::next_chunk: Invalid status.");
+          "prefixed_mutable_buffer::next_chunk: Invalid status.");
         return 0;
     }
   }
@@ -108,7 +112,7 @@ class fixed_mutable_buffer
         return boost::asio::buffer(&storage_.data_[0], storage_.data_.size());
       default:
         BOOST_ASSERT_MSG(false, 
-          "fixed_mutable_buffer::next_chunk: Invalid status.");
+          "prefixed_mutable_buffer::next_chunk: Invalid status.");
         return buffer_type(nullptr, 0);
     }
   }
@@ -131,38 +135,38 @@ class fixed_mutable_buffer
   storage storage_;
 };
 
-template <class TimerPolicy, class SizeType>
-using fixed_receiver = network_transfer<fixed_mutable_buffer<SizeType>, receive_transfer, TimerPolicy>;
+template <class TimerPolicy, class PrefixType>
+using prefixed_receiver = network_transfer<prefixed_mutable_buffer<PrefixType>, receive_transfer, TimerPolicy>;
 
-template <class TimerPolicy, class SizeType>
-using fixed_receiver_ptr = std::shared_ptr<fixed_receiver<TimerPolicy, SizeType> >;
+template <class TimerPolicy, class PrefixType>
+using prefixed_receiver_ptr = std::shared_ptr<prefixed_receiver<TimerPolicy, PrefixType>>;
 
-template <class TimerPolicy, class SizeType, class Socket>
-fixed_receiver_ptr<TimerPolicy, SizeType> make_fixed_receiver(const std::shared_ptr<Socket>& socket)
+template <class TimerPolicy, class PrefixType, class Socket>
+prefixed_receiver_ptr<TimerPolicy, PrefixType> make_prefixed_receiver(const std::shared_ptr<Socket>& socket)
 {
-  using receiver_type = fixed_receiver<TimerPolicy, SizeType>;
+  using receiver_type = prefixed_receiver<TimerPolicy, PrefixType>;
 
   return std::make_shared<receiver_type>(std::cref(socket));
 }
 
 template <class TimerPolicy, class Socket>
-fixed_receiver_ptr<TimerPolicy, std::uint32_t> make_fixed32_receiver(const std::shared_ptr<Socket>& socket)
+prefixed_receiver_ptr<TimerPolicy, std::uint32_t> make_prefixed32_receiver(const std::shared_ptr<Socket>& socket)
 {
-  return make_fixed_receiver<TimerPolicy, std::uint32_t>(socket);
+  return make_prefixed_receiver<TimerPolicy, std::uint32_t>(socket);
 }
 
 template <class TimerPolicy, class Socket>
-fixed_receiver_ptr<TimerPolicy, std::uint16_t> make_fixed16_receiver(const std::shared_ptr<Socket>& socket)
+prefixed_receiver_ptr<TimerPolicy, std::uint16_t> make_prefixed16_receiver(const std::shared_ptr<Socket>& socket)
 {
-  return make_fixed_receiver<TimerPolicy, std::uint16_t>(socket);
+  return make_prefixed_receiver<TimerPolicy, std::uint16_t>(socket);
 }
 
 template <class TimerPolicy, class Socket>
-fixed_receiver_ptr<TimerPolicy, std::uint8_t> make_fixed8_receiver(const std::shared_ptr<Socket>& socket)
+prefixed_receiver_ptr<TimerPolicy, std::uint8_t> make_prefixed8_receiver(const std::shared_ptr<Socket>& socket)
 {
-  return make_fixed_receiver<TimerPolicy, std::uint8_t>(socket);
+  return make_prefixed_receiver<TimerPolicy, std::uint8_t>(socket);
 }
 
 } // namespace neev
 
-#endif // NEEV_FIXED_MUTABLE_BUFFER_HPP
+#endif // NEEV_PREFIXED_MUTABLE_BUFFER_HPP

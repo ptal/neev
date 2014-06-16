@@ -6,13 +6,13 @@
 #ifndef NEEV_ARCHIVE_CONST_BUFFER_HPP
 #define NEEV_ARCHIVE_CONST_BUFFER_HPP
 
-#include <neev/fixed_const_buffer.hpp>
+#include <neev/prefixed_const_buffer.hpp>
 #include <boost/archive/text_oarchive.hpp>
 
 namespace neev{
 
 template <class TimerPolicy, class SizeType>
-using archive_sender = network_transfer<fixed_const_buffer<SizeType>, send_transfer, TimerPolicy>;
+using archive_sender = network_transfer<prefixed_const_buffer<SizeType>, send_transfer, TimerPolicy>;
 
 template <class TimerPolicy, class SizeType>
 using archive_sender_ptr = std::shared_ptr<archive_sender<TimerPolicy, SizeType> >;

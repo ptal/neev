@@ -6,33 +6,33 @@
 #ifndef NEEV_ARCHIVE_MUTABLE_BUFFER_HPP
 #define NEEV_ARCHIVE_MUTABLE_BUFFER_HPP
 
-#include <neev/fixed_mutable_buffer.hpp>
+#include <neev/prefixed_mutable_buffer.hpp>
 #include <boost/archive/text_iarchive.hpp>
 
 namespace neev{
 
 template <class Archive, class PrefixType = std::uint32_t>
 class archive_mutable_buffer
-: private fixed_mutable_buffer<PrefixType>
+: private prefixed_mutable_buffer<PrefixType>
 {
-  using fixed_buffer_type = fixed_mutable_buffer<PrefixType>;
+  using prefixed_buffer_type = prefixed_mutable_buffer<PrefixType>;
 public:
   using data_type = Archive;
   using prefix_type = PrefixType;
-  using buffer_type = typename fixed_buffer_type::buffer_type;
+  using buffer_type = typename prefixed_buffer_type::buffer_type;
 
-  using fixed_buffer_type::fixed_buffer_type;
-  using fixed_buffer_type::has_next_chunk;
-  using fixed_buffer_type::next_chunk;
-  using fixed_buffer_type::chunk;
-  using fixed_buffer_type::is_chunk_complete;
-  using fixed_buffer_type::size;
-  using fixed_buffer_type::chunk_size;
+  using prefixed_buffer_type::prefixed_buffer_type;
+  using prefixed_buffer_type::has_next_chunk;
+  using prefixed_buffer_type::next_chunk;
+  using prefixed_buffer_type::chunk;
+  using prefixed_buffer_type::is_chunk_complete;
+  using prefixed_buffer_type::size;
+  using prefixed_buffer_type::chunk_size;
 
   data_type data()
   {
     data_type unarchived_data;
-    std::istringstream archive_stream(fixed_buffer_type::data());
+    std::istringstream archive_stream(prefixed_buffer_type::data());
     boost::archive::text_iarchive archive(archive_stream);
     archive >> unarchived_data;
     return unarchived_data;

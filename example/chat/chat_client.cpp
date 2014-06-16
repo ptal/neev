@@ -6,8 +6,8 @@
 
 #include "chat_client.hpp"
 #include "utility.hpp"
-#include <neev/fixed_const_buffer.hpp>
-#include <neev/fixed_mutable_buffer.hpp>
+#include <neev/prefixed_const_buffer.hpp>
+#include <neev/prefixed_mutable_buffer.hpp>
 #include <sstream>
 
 using namespace neev;
@@ -43,7 +43,7 @@ void chat_client::async_wait_message()
 {
   if(socket_)
   {
-    auto receiver = make_fixed32_receiver<no_timer>(socket_);
+    auto receiver = make_prefixed32_receiver<no_timer>(socket_);
     receiver->on_event<transfer_complete>([=](){
       message_received(receiver->data());
     });
@@ -70,7 +70,7 @@ void chat_client::async_send_msg(std::string&& message)
 {
   if(socket_)
   {
-    auto sender = make_fixed32_sender<no_timer>(socket_, std::move(message));
+    auto sender = make_prefixed32_sender<no_timer>(socket_, std::move(message));
     sender->on_event<transfer_error>([this](const boost::system::error_code& e){
       disconnect(e.message());
     });

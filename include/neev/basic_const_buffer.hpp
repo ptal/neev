@@ -9,7 +9,6 @@
 #include <neev/timer_policy.hpp>
 #include <neev/transfer_operation.hpp>
 #include <neev/network_transfer.hpp>
-#include <neev/network_converter.hpp>
 #include <memory>
 #include <string>
 #include <cstdint>

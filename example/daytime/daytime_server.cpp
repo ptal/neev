@@ -4,7 +4,7 @@
 // (C) Copyright 2013-2014 Pierre Talbot <ptalbot@hyc.io>
 
 #include <neev/server/server_mt.hpp>
-#include <neev/fixed_const_buffer.hpp>
+#include <neev/prefixed_const_buffer.hpp>
 #include <ctime>
 #include <iostream>
 
@@ -20,7 +20,7 @@ std::string make_daytime_string()
 void on_new_client(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
 {
   std::cout << "new client...\n";
-  auto sender = make_fixed16_sender<no_timer>(socket, make_daytime_string());
+  auto sender = make_prefixed16_sender<no_timer>(socket, make_daytime_string());
   sender->on_event<transfer_complete>([](){std::cout << "data sent!" << std::endl;});
   sender->async_transfer();
 }
