@@ -30,10 +30,11 @@ public:
 
   /** Build the client with a io_service, it doesn't launch anything.
   */
-  shared_client(observer_type&& observer, boost::asio::io_service &io_service)
+  template <class ObserverType>
+  shared_client(ObserverType&& observer, boost::asio::io_service &io_service)
   : socket_(std::make_shared<socket_type>(std::ref(io_service)))
   , resolver_(io_service)
-  , observer_(std::move(observer))
+  , observer_(std::forward<ObserverType>(observer))
   {}
 
   shared_client(shared_client&&) = delete;
@@ -135,10 +136,12 @@ private:
 /** Build the client with a io_service, it doesn't launch anything.
 */
 template <class Observer>
-std::shared_ptr<shared_client<Observer>> make_shared_client(
+std::shared_ptr<shared_client<typename std::remove_reference<Observer>::type>> 
+make_shared_client(
   Observer&& observer, boost::asio::io_service &io_service)
 {
-  return std::make_shared<shared_client<Observer>>(std::move(observer), std::ref(io_service));
+  return std::make_shared<shared_client<typename std::remove_reference<Observer>::type>>(
+    std::forward<Observer>(observer), std::ref(io_service));
 }
 
 } // namespace detail
@@ -151,8 +154,9 @@ public:
   using socket_ptr = std::shared_ptr<socket_type>;
   using observer_type = Observer;
 
-  client(observer_type&& observer, boost::asio::io_service &io_service)
-  : shared_client(detail::make_shared_client(std::move(observer), io_service))
+  template <class ObserverType>
+  client(ObserverType&& observer, boost::asio::io_service &io_service)
+  : shared_client(detail::make_shared_client(std::forward<ObserverType>(observer), io_service))
   {}
 
   client(client&&) = delete;

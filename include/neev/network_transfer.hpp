@@ -21,13 +21,13 @@
 
 namespace neev{
 
-template <class BufferProvider, class Observer, class TimerPolicy = no_timer>
+template <class BufferProvider, class Observer, class Socket, class TimerPolicy = no_timer>
 class network_transfer
 : private TimerPolicy
-, public std::enable_shared_from_this<network_transfer<BufferProvider, Observer, TimerPolicy>>
+, public std::enable_shared_from_this<network_transfer<BufferProvider, Observer, Socket, TimerPolicy>>
 {
 public:
-  using socket_type = boost::asio::ip::tcp::socket;
+  using socket_type = Socket;
   using socket_ptr = std::shared_ptr<socket_type>;
   using provider_type = BufferProvider;
   using buffer_type = typename provider_type::buffer_type;
@@ -35,13 +35,13 @@ public:
   using observer_type = Observer;
   using timer_policy = TimerPolicy;
   using transfer_category = typename BufferProvider::transfer_category;
-  using this_type = network_transfer<provider_type, observer_type, timer_policy>;
+  using this_type = network_transfer<provider_type, observer_type, socket_type, timer_policy>;
 
-  template <class... BufferProviderArgs>
-  network_transfer(const socket_ptr& socket, observer_type&& observer, BufferProviderArgs&&... args)
+  template <class ObserverType, class... BufferProviderArgs>
+  network_transfer(const socket_ptr& socket, ObserverType&& observer, BufferProviderArgs&&... args)
   : timer_policy(socket->get_io_service())
   , socket_(socket)
-  , observer_(std::move(observer))
+  , observer_(std::forward<ObserverType>(observer))
   , buffer_provider_(std::forward<BufferProviderArgs>(args)...)
   , bytes_transferred_(0)
   {
@@ -173,6 +173,7 @@ std::shared_ptr<
   network_transfer<
     typename BufferTraits::type, 
     Observer,
+    Socket,
     TimerPolicy>>
 make_transfer(const std::shared_ptr<Socket>& socket, Observer&& observer, BufferArgs&&... args)
 {
@@ -180,8 +181,9 @@ make_transfer(const std::shared_ptr<Socket>& socket, Observer&& observer, Buffer
     network_transfer<
       typename BufferTraits::type, 
       Observer,
+      Socket,
       TimerPolicy>>(
-    std::cref(socket), std::forward<Observer>(observer), std::forward<BufferArgs>(args)...);
+    socket, std::forward<Observer>(observer), std::forward<BufferArgs>(args)...);
 }
 
 } // namespace neev

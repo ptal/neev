@@ -12,9 +12,7 @@
 namespace neev{
 
 template <class... Events>
-struct events
-: boost::mpl::set<Events...>
-{};
+using events = boost::mpl::set<Events...>;
 
 template <class Observer>
 struct observer_traits

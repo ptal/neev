@@ -34,11 +34,12 @@ public:
 public:
   // Rational: Do not start the server, it could fail and we'd have an invalid object.
   // Also the user would not be able to use the same object to try another service.
-  basic_server(observer_type&& observer)
+  template <class ObserverType>
+  basic_server(ObserverType&& observer)
   : io_service_()
   , acceptor_(io_service_)
   , server_on_(false)
-  , observer_(std::move(observer))
+  , observer_(std::forward<ObserverType>(observer))
   {}
 
   basic_server(basic_server&&) = delete;

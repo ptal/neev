@@ -28,8 +28,9 @@ public:
   using observer_type = Observer;
 
 public:
-  server_mt(observer_type&& observer, std::size_t pool_size)
-  : base_type(std::move(observer))
+  template <class ObserverType>
+  server_mt(ObserverType&& observer, std::size_t pool_size)
+  : base_type(std::forward<ObserverType>(observer))
   , thread_pool_size_(pool_size)
   {
     if(thread_pool_size_ == 0)
@@ -59,12 +60,12 @@ public:
   void run()
   {
     // Create a pool of threads to run all of the io_services.
-    std::vector<std::shared_ptr<boost::thread>> threads;
+    std::vector<std::unique_ptr<boost::thread>> threads;
     for (std::size_t i = 0; i < thread_pool_size_-1; ++i)
     {
-      std::shared_ptr<boost::thread> thread = std::make_shared<boost::thread>(
-            boost::bind(&this_type::run_one, this));
-      threads.push_back(thread);
+      std::unique_ptr<boost::thread> thread(
+        new boost::thread(boost::bind(&this_type::run_one, this)));
+      threads.push_back(std::move(thread));
     }
 
     // This thread is also used.

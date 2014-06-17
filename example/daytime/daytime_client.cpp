@@ -11,7 +11,7 @@
 class daytime_connection
 {
  public:
-  using events_type = boost::mpl::set<neev::transfer_complete>;
+  using events_type = neev::events<neev::transfer_complete>;
   void transfer_complete(const std::string& date) const
   {
     std::cout << date << std::endl;
@@ -21,11 +21,13 @@ class daytime_connection
 class daytime_client
 {
  public:
-  using events_type = boost::mpl::set<
+  using events_type = neev::events<
     neev::connection_success, 
     neev::connection_failure>;
 
-  void connection_success(const std::shared_ptr<boost::asio::ip::tcp::socket>& socket)
+  using socket_ptr = std::shared_ptr<boost::asio::ip::tcp::socket>;
+
+  void connection_success(const socket_ptr& socket)
   {
     using namespace neev;
     using buffer_type = daytime_buffer<receive_op>;

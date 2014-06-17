@@ -12,7 +12,7 @@
 class daytime_connection
 {
  public:
-  using events_type = boost::mpl::set<neev::transfer_complete>;
+  using events_type = neev::events<neev::transfer_complete>;
   void transfer_complete(const std::string&) const
   {
     std::cout << "data sent!" << std::endl;
@@ -22,7 +22,7 @@ class daytime_connection
 class daytime_server
 {
  public:
-  using events_type = boost::mpl::set<
+  using events_type = neev::events<
     neev::new_client,
     neev::start_failure,
     neev::start_success>;
