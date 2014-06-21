@@ -12,7 +12,7 @@ class daytime_connection
 {
  public:
   using events_type = neev::events<neev::transfer_complete>;
-  void transfer_complete(const std::string& date) const
+  void transfer_complete(const std::string& date, neev::receive_op) const
   {
     std::cout << date << std::endl;
   }

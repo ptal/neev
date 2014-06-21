@@ -10,8 +10,8 @@
 
 namespace neev{
 
-struct send_op;
-struct receive_op;
+struct send_op {};
+struct receive_op {};
 
 template <typename TransferCategory>
 struct transfer;
@@ -19,6 +19,8 @@ struct transfer;
 template <>
 struct transfer<send_op>
 {
+  using transfer_category = send_op;
+
   template <class AsyncStream, class Buffer, class CompletionCondition, class CompletionHandler>
   static void async_transfer(AsyncStream& socket, const Buffer& buffer, 
     CompletionCondition completion_condition, CompletionHandler completion_handler)
@@ -30,6 +32,8 @@ struct transfer<send_op>
 template <>
 struct transfer<receive_op>
 {
+  using transfer_category = receive_op;
+  
   template <class AsyncStream, class Buffer, class CompletionCondition, class CompletionHandler>
   static void async_transfer(AsyncStream& socket, const Buffer& buffer, 
     CompletionCondition completion_condition, CompletionHandler completion_handler)

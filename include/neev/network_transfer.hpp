@@ -147,7 +147,7 @@ private:
         // Could it be replaced by "is_done" ?
         if(!buffer_provider_.has_next_chunk())
         {
-          dispatch_event<transfer_complete>(observer_, buffer_provider_.data());
+          dispatch_event<transfer_complete>(observer_, buffer_provider_.data(), transfer_category());
         }
         else
         {

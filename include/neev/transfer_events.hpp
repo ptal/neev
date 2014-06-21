@@ -25,10 +25,10 @@ struct transfer_on_going;
 template <class Observer>
 struct event_dispatcher<Observer, transfer_complete, true>
 {
-  template <class Data>
-  static void apply(Observer& obs, Data&& data)
+  template <class Data, class TransferCategory>
+  static void apply(Observer& obs, Data&& data, TransferCategory cat)
   {
-    obs.transfer_complete(std::forward<Data>(data));
+    obs.transfer_complete(std::forward<Data>(data), cat);
   }
 };
 
