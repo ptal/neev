@@ -20,6 +20,26 @@
 #include <memory>
 
 namespace neev{
+namespace detail{
+
+  template <class T>
+  T& deref(T& v)
+  {
+    return v;
+  }
+
+  template <class T>
+  T& deref(const std::shared_ptr<T>& v)
+  {
+    return *v;
+  }
+
+  template <class T>
+  T& deref(const std::unique_ptr<T>& v)
+  {
+    return *v;
+  }
+}
 
 template <class BufferProvider, class Observer, class Socket, class TimerPolicy = no_timer>
 class network_transfer
@@ -116,7 +136,7 @@ private:
     std::size_t overall_bytes_transferred = bytes_transferred_ + chunk_bytes_transferred;
     if(!error && !this->is_timed_out() && !buffer_provider_.is_chunk_complete(chunk_bytes_transferred))
     {
-      dispatch_event<transfer_on_going>(observer_, overall_bytes_transferred, buffer_provider_.size());
+      dispatch_event<transfer_on_going>(detail::deref(observer_), overall_bytes_transferred, buffer_provider_.size());
       return buffer_provider_.chunk_size() - chunk_bytes_transferred;
     }
     else
@@ -133,21 +153,21 @@ private:
     bytes_transferred_ += chunk_bytes_transferred;
     if(this->is_timed_out())
     {
-      dispatch_event<transfer_error>(observer_, boost::asio::error::make_error_code(boost::asio::error::timed_out));
+      dispatch_event<transfer_error>(detail::deref(observer_), boost::asio::error::make_error_code(boost::asio::error::timed_out));
     }
     else if(error)
     {
-      dispatch_event<transfer_error>(observer_, error);
+      dispatch_event<transfer_error>(detail::deref(observer_), error);
     }
     else
     {
       try
       {
-        dispatch_event<transfer_on_going>(observer_, bytes_transferred_, buffer_provider_.size());
+        dispatch_event<transfer_on_going>(detail::deref(observer_), bytes_transferred_, buffer_provider_.size());
         // Could it be replaced by "is_done" ?
         if(!buffer_provider_.has_next_chunk())
         {
-          dispatch_event<transfer_complete>(observer_, buffer_provider_.data(), transfer_category());
+          dispatch_event<transfer_complete>(detail::deref(observer_), buffer_provider_.data(), transfer_category());
         }
         else
         {
@@ -157,7 +177,7 @@ private:
       }
       catch(const boost::system::system_error& e)
       {
-        dispatch_event<transfer_error>(observer_, e.code());
+        dispatch_event<transfer_error>(detail::deref(observer_), e.code());
       }
     }
   }
@@ -184,6 +204,24 @@ make_transfer(const std::shared_ptr<Socket>& socket, Observer&& observer, Buffer
       Socket,
       TimerPolicy>>(
     socket, std::forward<Observer>(observer), std::forward<BufferArgs>(args)...);
+}
+
+template <class BufferTraits, class TimerPolicy = no_timer, class Socket, class Observer, class... BufferArgs>
+std::shared_ptr<
+  network_transfer<
+    typename BufferTraits::type, 
+    Observer&,
+    Socket,
+    TimerPolicy>>
+make_transfer(const std::shared_ptr<Socket>& socket, std::reference_wrapper<Observer> observer, BufferArgs&&... args)
+{
+  return std::make_shared<
+    network_transfer<
+      typename BufferTraits::type, 
+      Observer&,
+      Socket,
+      TimerPolicy>>(
+    socket, observer.get(), std::forward<BufferArgs>(args)...);
 }
 
 } // namespace neev
